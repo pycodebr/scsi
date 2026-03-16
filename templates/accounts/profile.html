@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Meu Perfil{% endblock %}
+{% block nav_profile %}active{% endblock %}
+{% block page_title %}Meu Perfil{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item">Meu Perfil</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xxl-8 col-lg-10">
+        <div class="card stretch stretch-full">
+            <div class="card-header">
+                <h5 class="card-title">Editar Perfil</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    {% if form.errors %}
+                    <div class="alert alert-soft-danger mb-3">
+                        <ul class="mb-0 fs-12">
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                <li>{{ field.label }}: {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Nome</label>
+                            {{ form.first_name }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Sobrenome</label>
+                            {{ form.last_name }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Telefone</label>
+                            {{ form.phone }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">CPF</label>
+                            {{ form.cpf }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" value="{{ user.email }}" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Papel</label>
+                            <input type="text" class="form-control" value="{{ user.get_role_display }}" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Foto</label>
+                            {{ form.avatar }}
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="feather-save me-2"></i>Salvar Alterações
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

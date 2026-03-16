@@ -1,0 +1,661 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SCSI — Sistema de Corretora de Seguros Inteligente</title>
+    <meta name="description" content="SCSI - Plataforma SaaS inteligente para corretoras de seguros. Gestão completa de clientes, apólices, sinistros e CRM com IA integrada.">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/vendors.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/theme.min.css' %}">
+    <style>
+        :root {
+            --landing-gradient-start: #4a6cf7;
+            --landing-gradient-end: #2563eb;
+        }
+
+        .landing-body {
+            background: #f8fafc;
+        }
+
+        /* Navbar */
+        .landing-navbar {
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            padding: 1rem 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        .landing-navbar .nav-brand {
+            height: 32px;
+        }
+
+        /* Hero */
+        .hero-section {
+            padding: 8rem 0 5rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #e8edf5 50%, #dbe4f0 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -25%;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(74, 108, 247, 0.05), rgba(37, 99, 235, 0.08));
+        }
+        .hero-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            line-height: 1.2;
+            color: #1a1a2e;
+        }
+        .hero-subtitle {
+            font-size: 1.1rem;
+            color: #64748b;
+            line-height: 1.7;
+            max-width: 500px;
+        }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 1rem;
+            background: rgba(74, 108, 247, 0.1);
+            color: #4a6cf7;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Features */
+        .features-section {
+            padding: 5rem 0;
+        }
+        .feature-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: #fff;
+            height: 100%;
+        }
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06);
+            border-color: #c7d2fe;
+        }
+        .feature-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.2rem;
+            font-size: 1.4rem;
+        }
+        .feature-card h6 {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #1a1a2e;
+        }
+        .feature-card p {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 0;
+            line-height: 1.5;
+        }
+
+        /* AI Section */
+        .ai-section {
+            padding: 5rem 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+        }
+        .ai-section .section-title {
+            color: #fff;
+        }
+        .ai-feature {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .ai-feature-icon {
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            border-radius: 10px;
+            background: rgba(74, 108, 247, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #818cf8;
+        }
+        .ai-feature h6 {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .ai-feature p {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-bottom: 0;
+        }
+
+        /* Plans */
+        .plans-section {
+            padding: 5rem 0;
+        }
+        .plan-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 2rem;
+            background: #fff;
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+        .plan-card:hover {
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06);
+        }
+        .plan-card.featured {
+            border-color: #4a6cf7;
+            position: relative;
+        }
+        .plan-card.featured::before {
+            content: 'Mais Popular';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4a6cf7;
+            color: #fff;
+            padding: 0.2rem 1rem;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .plan-price {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1a1a2e;
+        }
+        .plan-price span {
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: #64748b;
+        }
+        .plan-feature {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            color: #475569;
+        }
+        .plan-feature i {
+            color: #22c55e;
+            font-size: 0.85rem;
+        }
+
+        /* FAQ */
+        .faq-section {
+            padding: 5rem 0;
+            background: #f1f5f9;
+        }
+
+        /* CTA */
+        .cta-section {
+            padding: 5rem 0;
+            background: linear-gradient(135deg, #4a6cf7, #2563eb);
+            color: #fff;
+            text-align: center;
+        }
+
+        /* Footer */
+        .landing-footer {
+            padding: 3rem 0;
+            background: #1a1a2e;
+            color: #94a3b8;
+        }
+        .landing-footer a {
+            color: #94a3b8;
+            text-decoration: none;
+        }
+        .landing-footer a:hover {
+            color: #fff;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1a1a2e;
+            margin-bottom: 0.75rem;
+        }
+        .section-subtitle {
+            font-size: 1rem;
+            color: #64748b;
+            max-width: 600px;
+            margin: 0 auto 3rem;
+        }
+    </style>
+</head>
+<body class="landing-body">
+    <!-- ============================================================ -->
+    <!-- Navbar -->
+    <!-- ============================================================ -->
+    <div class="landing-navbar">
+        <div class="container">
+            <div class="d-flex align-items-center justify-content-between">
+                <a href="{% url 'landing:index' %}">
+                    <img src="{% static 'images/logo-full.png' %}" alt="SCSI" class="nav-brand">
+                </a>
+                <div class="d-flex align-items-center gap-3">
+                    <a href="{% url 'accounts:login' %}" class="btn btn-light-brand btn-sm">
+                        <i class="feather-log-in me-1"></i> Entrar
+                    </a>
+                    <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-sm">
+                        Criar Conta Grátis
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- Hero Section -->
+    <!-- ============================================================ -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <div class="hero-badge">
+                        <i class="feather-cpu"></i>
+                        Inteligência Artificial Integrada
+                    </div>
+                    <h1 class="hero-title mb-3">Gestão inteligente para sua <span style="color: #4a6cf7;">corretora de seguros</span></h1>
+                    <p class="hero-subtitle mb-4">
+                        Plataforma completa para gerenciar clientes, apólices, propostas, sinistros e negociações
+                        com CRM integrado e agente de IA que gera insights em tempo real.
+                    </p>
+                    <div class="d-flex gap-3">
+                        <a href="{% url 'accounts:register' %}" class="btn btn-primary">
+                            <i class="feather-arrow-right me-2"></i>Experimentar Grátis
+                        </a>
+                        <a href="#features" class="btn btn-light-brand">
+                            Saiba Mais
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6 d-none d-lg-block text-center">
+                    <div class="p-4">
+                        <div class="card shadow-sm" style="transform: rotate(-2deg);">
+                            <div class="card-body p-3">
+                                <div class="d-flex align-items-center gap-3 mb-3">
+                                    <div class="avatar-text avatar-sm bg-soft-primary text-primary">
+                                        <i class="feather-shield"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold fs-13">Dashboard SCSI</div>
+                                        <span class="fs-11 text-muted">Visão consolidada</span>
+                                    </div>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <div class="p-2 bg-soft-primary rounded text-center">
+                                            <div class="fw-bold text-primary">254</div>
+                                            <div class="fs-10 text-muted">Clientes</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="p-2 bg-soft-success rounded text-center">
+                                            <div class="fw-bold text-success">189</div>
+                                            <div class="fs-10 text-muted">Apólices</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="p-2 bg-soft-warning rounded text-center">
+                                            <div class="fw-bold text-warning">R$ 2.4M</div>
+                                            <div class="fs-10 text-muted">Prêmio</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="p-2 bg-soft-danger rounded text-center">
+                                            <div class="fw-bold text-danger">12</div>
+                                            <div class="fs-10 text-muted">Sinistros</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- Features Section -->
+    <!-- ============================================================ -->
+    <section class="features-section" id="features">
+        <div class="container">
+            <div class="text-center">
+                <h2 class="section-title">Tudo que sua corretora precisa</h2>
+                <p class="section-subtitle">Gestão completa do ciclo de vida do seguro, do primeiro contato à renovação.</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon bg-soft-primary text-primary">
+                            <i class="feather-users"></i>
+                        </div>
+                        <h6>Gestão de Clientes</h6>
+                        <p>Cadastro completo de segurados PF e PJ com histórico, apólices e relacionamento.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon bg-soft-success text-success">
+                            <i class="feather-file-text"></i>
+                        </div>
+                        <h6>Apólices & Propostas</h6>
+                        <p>Controle de propostas, apólices, itens segurados e coberturas com workflow completo.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon bg-soft-warning text-warning">
+                            <i class="feather-target"></i>
+                        </div>
+                        <h6>CRM Integrado</h6>
+                        <p>Pipeline de vendas com visão grid e kanban, atividades e acompanhamento de negócios.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon bg-soft-danger text-danger">
+                            <i class="feather-alert-triangle"></i>
+                        </div>
+                        <h6>Sinistros & Endossos</h6>
+                        <p>Gestão de sinistros vinculados a itens segurados e endossos em apólices vigentes.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon bg-soft-info text-info">
+                            <i class="feather-dollar-sign"></i>
+                        </div>
+                        <h6>Comissões & Repasses</h6>
+                        <p>Cálculo automático de comissões e gestão de repasses para agentes e produtores.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon bg-soft-dark text-dark">
+                            <i class="feather-refresh-cw"></i>
+                        </div>
+                        <h6>Renovações</h6>
+                        <p>Alertas automáticos de apólices a vencer e fluxo completo de renovação.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- AI Section -->
+    <!-- ============================================================ -->
+    <section class="ai-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <span class="badge bg-soft-primary text-primary mb-3">IA INTEGRADA</span>
+                    <h2 class="section-title">Inteligência artificial a serviço da sua corretora</h2>
+                    <p style="color: #94a3b8; font-size: 0.95rem; line-height: 1.7;">
+                        Nosso agente de IA analisa seus dados e gera insights, resumos e recomendações
+                        de cross/up selling diretamente na interface do sistema.
+                    </p>
+                </div>
+                <div class="col-lg-6">
+                    <div class="ai-feature">
+                        <div class="ai-feature-icon">
+                            <i class="feather-bar-chart-2"></i>
+                        </div>
+                        <div>
+                            <h6>Insights no Dashboard</h6>
+                            <p>Visão geral inteligente gerada automaticamente sobre seus negócios, renovações e oportunidades.</p>
+                        </div>
+                    </div>
+                    <div class="ai-feature">
+                        <div class="ai-feature-icon">
+                            <i class="feather-message-circle"></i>
+                        </div>
+                        <div>
+                            <h6>Chat com o Agente</h6>
+                            <p>Converse com a IA para consultar dados, obter análises e recomendações personalizadas.</p>
+                        </div>
+                    </div>
+                    <div class="ai-feature">
+                        <div class="ai-feature-icon">
+                            <i class="feather-file-text"></i>
+                        </div>
+                        <div>
+                            <h6>Resumos Inteligentes</h6>
+                            <p>Gere resumos automáticos de clientes, negócios, apólices e sinistros com um clique.</p>
+                        </div>
+                    </div>
+                    <div class="ai-feature">
+                        <div class="ai-feature-icon">
+                            <i class="feather-trending-up"></i>
+                        </div>
+                        <div>
+                            <h6>Cross & Up Selling</h6>
+                            <p>Identifique automaticamente oportunidades de venda com base no perfil dos seus clientes.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- Plans Section -->
+    <!-- ============================================================ -->
+    <section class="plans-section" id="planos">
+        <div class="container">
+            <div class="text-center">
+                <h2 class="section-title">Planos e Preços</h2>
+                <p class="section-subtitle">Escolha o plano ideal para sua corretora. Comece grátis e evolua conforme cresce.</p>
+            </div>
+            <div class="row g-4 justify-content-center">
+                <div class="col-lg-3 col-md-6">
+                    <div class="plan-card">
+                        <h6 class="fw-bold text-dark mb-1">Free</h6>
+                        <p class="fs-12 text-muted mb-3">Para começar</p>
+                        <div class="plan-price mb-3">R$ 0 <span>/mês</span></div>
+                        <div class="mb-4">
+                            <div class="plan-feature"><i class="feather-check"></i> Até 2 usuários</div>
+                            <div class="plan-feature"><i class="feather-check"></i> Gestão de clientes</div>
+                            <div class="plan-feature"><i class="feather-check"></i> Propostas e apólices</div>
+                            <div class="plan-feature"><i class="feather-check"></i> Dashboard básico</div>
+                        </div>
+                        <a href="{% url 'accounts:register' %}" class="btn btn-light-brand w-100">Começar Grátis</a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="plan-card featured">
+                        <h6 class="fw-bold text-dark mb-1">Profissional</h6>
+                        <p class="fs-12 text-muted mb-3">Para corretoras em crescimento</p>
+                        <div class="plan-price mb-3">R$ 49 <span>/usuário/mês</span></div>
+                        <div class="mb-4">
+                            <div class="plan-feature"><i class="feather-check"></i> Até 10 usuários</div>
+                            <div class="plan-feature"><i class="feather-check"></i> Todas as funcionalidades</div>
+                            <div class="plan-feature"><i class="feather-check"></i> CRM integrado</div>
+                            <div class="plan-feature"><i class="feather-check"></i> Comissões e repasses</div>
+                            <div class="plan-feature"><i class="feather-check"></i> Agente IA</div>
+                        </div>
+                        <a href="{% url 'accounts:register' %}" class="btn btn-primary w-100">Assinar</a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="plan-card">
+                        <h6 class="fw-bold text-dark mb-1">Enterprise</h6>
+                        <p class="fs-12 text-muted mb-3">Para grandes corretoras</p>
+                        <div class="plan-price mb-3">R$ 89 <span>/usuário/mês</span></div>
+                        <div class="mb-4">
+                            <div class="plan-feature"><i class="feather-check"></i> Usuários ilimitados</div>
+                            <div class="plan-feature"><i class="feather-check"></i> Todas as funcionalidades</div>
+                            <div class="plan-feature"><i class="feather-check"></i> Relatórios avançados</div>
+                            <div class="plan-feature"><i class="feather-check"></i> Suporte prioritário</div>
+                            <div class="plan-feature"><i class="feather-check"></i> IA ilimitada</div>
+                        </div>
+                        <a href="{% url 'accounts:register' %}" class="btn btn-light-brand w-100">Fale Conosco</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- FAQ Section -->
+    <!-- ============================================================ -->
+    <section class="faq-section" id="faq">
+        <div class="container">
+            <div class="text-center">
+                <h2 class="section-title">Perguntas Frequentes</h2>
+                <p class="section-subtitle">Tire suas dúvidas sobre o SCSI.</p>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="accordion" id="faqAccordion">
+                        <div class="accordion-item border rounded mb-3">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq1" aria-expanded="true">
+                                    O que é o SCSI?
+                                </button>
+                            </h2>
+                            <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body fs-13 text-muted">
+                                    O SCSI (Sistema de Corretora de Seguros Inteligente) é uma plataforma SaaS completa para gestão de corretoras de seguros.
+                                    Ele integra CRM, gestão de apólices, sinistros, comissões e inteligência artificial em um único sistema.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item border rounded mb-3">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                    Posso experimentar grátis?
+                                </button>
+                            </h2>
+                            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body fs-13 text-muted">
+                                    Sim! Oferecemos um plano gratuito para até 2 usuários, sem necessidade de cartão de crédito.
+                                    Você pode começar a usar imediatamente após criar sua conta.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item border rounded mb-3">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                    Como funciona o agente de IA?
+                                </button>
+                            </h2>
+                            <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body fs-13 text-muted">
+                                    O agente de IA utiliza tecnologia avançada para analisar os dados da sua corretora e gerar insights,
+                                    resumos e recomendações de vendas. Ele está disponível como chat e nos detalhes de cada registro.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item border rounded">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                    Meus dados são seguros?
+                                </button>
+                            </h2>
+                            <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body fs-13 text-muted">
+                                    Sim. O SCSI utiliza arquitetura multi-tenant com isolamento rigoroso de dados.
+                                    Cada corretora só acessa seus próprios dados, com controle de permissões granular por papel.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- CTA Section -->
+    <!-- ============================================================ -->
+    <section class="cta-section">
+        <div class="container">
+            <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 1rem;">Pronto para transformar sua corretora?</h2>
+            <p style="font-size: 1rem; opacity: 0.85; max-width: 500px; margin: 0 auto 2rem;">
+                Junte-se a centenas de corretoras que já usam o SCSI para gerenciar seus negócios de forma inteligente.
+            </p>
+            <a href="{% url 'accounts:register' %}" class="btn btn-light btn-lg">
+                <i class="feather-arrow-right me-2"></i>Criar Conta Grátis
+            </a>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- Footer -->
+    <!-- ============================================================ -->
+    <footer class="landing-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4 mb-lg-0">
+                    <img src="{% static 'images/logo-full.png' %}" alt="SCSI" style="height: 28px; filter: brightness(2);" class="mb-3">
+                    <p class="fs-12" style="max-width: 300px;">
+                        Sistema de Corretora de Seguros Inteligente — Plataforma SaaS completa com IA integrada.
+                    </p>
+                </div>
+                <div class="col-lg-2 col-md-4 mb-4 mb-md-0">
+                    <h6 class="fw-bold text-white mb-3 fs-13">Produto</h6>
+                    <ul class="list-unstyled fs-12">
+                        <li class="mb-2"><a href="#features">Funcionalidades</a></li>
+                        <li class="mb-2"><a href="#planos">Preços</a></li>
+                        <li class="mb-2"><a href="#faq">FAQ</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-4 mb-4 mb-md-0">
+                    <h6 class="fw-bold text-white mb-3 fs-13">Suporte</h6>
+                    <ul class="list-unstyled fs-12">
+                        <li class="mb-2"><a href="javascript:void(0);">Central de Ajuda</a></li>
+                        <li class="mb-2"><a href="javascript:void(0);">Documentação</a></li>
+                        <li class="mb-2"><a href="javascript:void(0);">Contato</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-4">
+                    <h6 class="fw-bold text-white mb-3 fs-13">Legal</h6>
+                    <ul class="list-unstyled fs-12">
+                        <li class="mb-2"><a href="javascript:void(0);">Termos de Uso</a></li>
+                        <li class="mb-2"><a href="javascript:void(0);">Privacidade</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr style="border-color: #2d2d44;" class="my-4">
+            <div class="text-center fs-11">
+                © 2026 SCSI. Todos os direitos reservados.
+            </div>
+        </div>
+    </footer>
+
+    <script src="{% static 'js/vendors.min.js' %}"></script>
+</body>
+</html>

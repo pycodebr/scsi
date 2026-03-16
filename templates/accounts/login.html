@@ -1,0 +1,45 @@
+{% extends 'base_auth.html' %}
+{% load static %}
+
+{% block title %}Login{% endblock %}
+{% block meta_description %}Acesse sua conta no SCSI - Sistema de Corretora de Seguros Inteligente.{% endblock %}
+
+{% block content %}
+<h5 class="mb-1">Entrar</h5>
+<p class="fs-12 text-muted mb-4">Acesse sua conta para continuar</p>
+
+<form method="post" id="login-form">
+    {% csrf_token %}
+
+    {% if form.errors %}
+    <div class="alert alert-soft-danger mb-3">
+        <span class="fs-12">Email ou senha inválidos. Tente novamente.</span>
+    </div>
+    {% endif %}
+
+    <div class="mb-3">
+        <label class="form-label" for="id_username">Email</label>
+        {{ form.username }}
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label" for="id_password">Senha</label>
+        {{ form.password }}
+    </div>
+
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input" id="remember-me" name="remember">
+            <label class="custom-control-label c-pointer fs-12" for="remember-me">Lembrar de mim</label>
+        </div>
+        <a href="javascript:void(0);" class="fs-12 fw-semibold text-primary">Esqueceu a senha?</a>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100">Entrar</button>
+</form>
+
+<div class="text-center mt-4">
+    <span class="fs-12 text-muted">Não tem uma conta?</span>
+    <a href="{% url 'accounts:register' %}" class="fs-13 fw-bold text-primary ms-1">Criar conta</a>
+</div>
+{% endblock %}
