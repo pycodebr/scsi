@@ -1,6 +1,5 @@
-Django>=6.0,<7.0
-python-decouple
-Pillow
-langchain
-langchain-openai
-langgraph
+asgiref==3.11.1
+Django==6.0.3
+pillow==12.1.1
+python-decouple==3.8
+sqlparse==0.5.5
