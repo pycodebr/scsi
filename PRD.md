@@ -1903,13 +1903,13 @@ Brokerage (tenant)
 
 ### Sprint 2 — Cadastros Core (Semanas 3-4)
 
-- [ ] App `agents`: CRUD de agentes e produtores
-- [ ] App `clients`: CRUD completo
-- [ ] App `insurers`: CRUD completo
-- [ ] App `branches`: CRUD de ramos + fixtures padrão
-- [ ] App `coverages`: CRUD de tipos de cobertura
-- [ ] Implementar TenantMixin + RoleScopedMixin em todas as views
-- [ ] Permissões por papel nos cadastros
+- [x] App `agents`: CRUD de agentes e produtores
+- [x] App `clients`: CRUD completo
+- [x] App `insurers`: CRUD completo
+- [x] App `branches`: CRUD de ramos + fixtures padrão
+- [x] App `coverages`: CRUD de tipos de cobertura
+- [x] Implementar TenantMixin + RoleScopedMixin em todas as views
+- [x] Permissões por papel nos cadastros
 
 ### Sprint 3 — Seguros e Itens Segurados (Semanas 5-7)
 
