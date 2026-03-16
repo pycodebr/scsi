@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block title %}Clientes{% endblock %}
+{% block nav_clients %}active{% endblock %}
+{% block page_title %}Clientes{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item">Clientes</li>
+{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'clients:client_create' %}" class="btn btn-primary">
+    <i class="feather-plus me-2"></i>
+    <span>Novo Cliente</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card stretch stretch-full">
+            <div class="card-header">
+                <h5 class="card-title">Lista de Clientes</h5>
+                <div class="card-header-action">
+                    <form method="get" class="d-flex gap-2">
+                        <input type="text" name="q" value="{{ request.GET.q|default:'' }}" class="form-control" placeholder="Buscar por nome, CPF/CNPJ ou email...">
+                        <button type="submit" class="btn btn-light">
+                            <i class="feather-search"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="card-body custom-card-action p-0">
+                {% if clients %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Tipo</th>
+                                <th>CPF/CNPJ</th>
+                                <th>Email</th>
+                                <th>Telefone</th>
+                                <th>Produtor</th>
+                                <th>Status</th>
+                                <th class="text-end">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for client in clients %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'clients:client_detail' client.pk %}" class="fw-semibold text-dark">
+                                        {{ client.name }}
+                                    </a>
+                                </td>
+                                <td>{{ client.get_client_type_display }}</td>
+                                <td>{{ client.cpf_cnpj }}</td>
+                                <td>{{ client.email|default:'-' }}</td>
+                                <td>{{ client.phone|default:'-' }}</td>
+                                <td>{{ client.assigned_producer.name|default:'-' }}</td>
+                                <td>
+                                    {% if client.is_active %}
+                                    <span class="badge bg-soft-success text-success">Ativo</span>
+                                    {% else %}
+                                    <span class="badge bg-soft-danger text-danger">Inativo</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <a href="{% url 'clients:client_detail' client.pk %}" class="btn btn-light btn-sm" title="Visualizar">
+                                        <i class="feather-eye"></i>
+                                    </a>
+                                    <a href="{% url 'clients:client_update' client.pk %}" class="btn btn-light btn-sm" title="Editar">
+                                        <i class="feather-edit"></i>
+                                    </a>
+                                    <a href="{% url 'clients:client_delete' client.pk %}" class="btn btn-light btn-sm" title="Excluir">
+                                        <i class="feather-trash-2"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <div class="avatar-text avatar-lg bg-gray-200 mx-auto mb-3" style="width:64px;height:64px;">
+                        <i class="feather-users" style="font-size:28px;"></i>
+                    </div>
+                    <h5 class="fw-semibold text-dark mb-2">Nenhum cliente encontrado</h5>
+                    <p class="fs-13 text-muted mb-3">
+                        {% if request.GET.q %}
+                        Nenhum resultado para "{{ request.GET.q }}". Tente outro termo de busca.
+                        {% else %}
+                        Comece cadastrando seu primeiro cliente.
+                        {% endif %}
+                    </p>
+                    {% if not request.GET.q %}
+                    <a href="{% url 'clients:client_create' %}" class="btn btn-primary btn-sm">
+                        <i class="feather-plus me-1"></i> Novo Cliente
+                    </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            {% if is_paginated %}
+            <div class="card-footer">
+                <nav>
+                    <ul class="pagination justify-content-center mb-0">
+                        {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}page={{ page_obj.previous_page_number }}">
+                                <i class="feather-chevron-left"></i>
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="feather-chevron-left"></i></span>
+                        </li>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}page={{ num }}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}page={{ page_obj.next_page_number }}">
+                                <i class="feather-chevron-right"></i>
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="feather-chevron-right"></i></span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

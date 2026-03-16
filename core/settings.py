@@ -35,6 +35,11 @@ INSTALLED_APPS = [
     'accounts',
     'brokerages',
     'plans',
+    'agents',
+    'clients',
+    'insurers',
+    'branches',
+    'coverages',
     'landing',
     'dashboard',
 ]

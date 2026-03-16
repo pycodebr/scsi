@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ coverage_type.name }}{% endblock %}
+{% block nav_coverages %}active{% endblock %}
+{% block page_title %}{{ coverage_type.name }}{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'coverages:coveragetype_list' %}">Tipos de Cobertura</a></li>
+<li class="breadcrumb-item">{{ coverage_type.name }}</li>
+{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'coverages:coveragetype_update' coverage_type.pk %}" class="btn btn-light-brand">
+    <i class="feather-edit me-2"></i>Editar
+</a>
+<a href="{% url 'coverages:coveragetype_delete' coverage_type.pk %}" class="btn btn-light-brand text-danger">
+    <i class="feather-trash-2 me-2"></i>Excluir
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xxl-8 col-lg-10">
+        <div class="card stretch stretch-full">
+            <div class="card-header">
+                <h5 class="card-title">Informações do Tipo de Cobertura</h5>
+                <div>
+                    {% if coverage_type.is_active %}
+                    <span class="badge bg-soft-success text-success">Ativo</span>
+                    {% else %}
+                    <span class="badge bg-soft-danger text-danger">Inativo</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label text-muted fs-12">Nome</label>
+                        <p class="fw-semibold mb-0">{{ coverage_type.name }}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label text-muted fs-12">Ramo de Seguro</label>
+                        <p class="fw-semibold mb-0">{{ coverage_type.insurance_branch.name|default:'-' }}</p>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label text-muted fs-12">Descrição</label>
+                        <p class="fw-semibold mb-0">{{ coverage_type.description|default:'-' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

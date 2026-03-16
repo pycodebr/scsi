@@ -24,6 +24,10 @@ class LoginView(DjangoLoginView):
 
 class LogoutView(DjangoLogoutView):
     next_page = '/'
+    http_method_names = ['get', 'post', 'options']
+
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
 
 
 class RegisterView(FormView):

@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Excluir Ramo{% endblock %}
+{% block nav_branches %}active{% endblock %}
+{% block page_title %}Excluir Ramo{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'branches:branch_list' %}">Ramos de Seguro</a></li>
+<li class="breadcrumb-item">Excluir</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xxl-6 col-lg-8">
+        <div class="card stretch stretch-full">
+            <div class="card-body text-center py-5">
+                <div class="avatar-text avatar-lg bg-soft-danger text-danger mx-auto mb-3" style="width:64px;height:64px;">
+                    <i class="feather-trash-2" style="font-size:28px;"></i>
+                </div>
+                <h5 class="fw-bold text-dark mb-2">Confirmar Exclusão</h5>
+                <p class="text-muted mb-4">
+                    Tem certeza que deseja excluir o ramo <strong>{{ object.name }}</strong>?<br>
+                    Esta ação não pode ser desfeita.
+                </p>
+                <form method="post">
+                    {% csrf_token %}
+                    <a href="{% url 'branches:branch_detail' object.pk %}" class="btn btn-secondary me-2">Cancelar</a>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="feather-trash-2 me-2"></i>Excluir
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

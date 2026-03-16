@@ -43,31 +43,31 @@
                         <label>Cadastros</label>
                     </li>
                     <li class="nxl-item {% block nav_clients %}{% endblock %}">
-                        <a href="javascript:void(0);" class="nxl-link">
+                        <a href="{% url 'clients:client_list' %}" class="nxl-link">
                             <span class="nxl-micon"><i class="feather-users"></i></span>
                             <span class="nxl-mtext">Clientes</span>
                         </a>
                     </li>
                     <li class="nxl-item {% block nav_insurers %}{% endblock %}">
-                        <a href="javascript:void(0);" class="nxl-link">
+                        <a href="{% url 'insurers:insurer_list' %}" class="nxl-link">
                             <span class="nxl-micon"><i class="feather-home"></i></span>
                             <span class="nxl-mtext">Seguradoras</span>
                         </a>
                     </li>
                     <li class="nxl-item {% block nav_branches %}{% endblock %}">
-                        <a href="javascript:void(0);" class="nxl-link">
+                        <a href="{% url 'branches:branch_list' %}" class="nxl-link">
                             <span class="nxl-micon"><i class="feather-tag"></i></span>
                             <span class="nxl-mtext">Ramos de Seguro</span>
                         </a>
                     </li>
                     <li class="nxl-item {% block nav_agents %}{% endblock %}">
-                        <a href="javascript:void(0);" class="nxl-link">
+                        <a href="{% url 'agents:agent_list' %}" class="nxl-link">
                             <span class="nxl-micon"><i class="feather-briefcase"></i></span>
                             <span class="nxl-mtext">Agentes</span>
                         </a>
                     </li>
                     <li class="nxl-item {% block nav_producers %}{% endblock %}">
-                        <a href="javascript:void(0);" class="nxl-link">
+                        <a href="{% url 'producers:producer_list' %}" class="nxl-link">
                             <span class="nxl-micon"><i class="feather-user"></i></span>
                             <span class="nxl-mtext">Produtores</span>
                         </a>
@@ -108,7 +108,7 @@
                         </a>
                     </li>
                     <li class="nxl-item {% block nav_coverages %}{% endblock %}">
-                        <a href="javascript:void(0);" class="nxl-link">
+                        <a href="{% url 'coverages:coveragetype_list' %}" class="nxl-link">
                             <span class="nxl-micon"><i class="feather-shield"></i></span>
                             <span class="nxl-mtext">Coberturas</span>
                         </a>

@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ producer.name }}{% endblock %}
+{% block nav_producers %}active{% endblock %}
+{% block page_title %}{{ producer.name }}{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'producers:producer_list' %}">Produtores</a></li>
+<li class="breadcrumb-item">{{ producer.name }}</li>
+{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'producers:producer_update' producer.pk %}" class="btn btn-light-brand">
+    <i class="feather-edit me-2"></i>Editar
+</a>
+<a href="{% url 'producers:producer_delete' producer.pk %}" class="btn btn-light-brand text-danger">
+    <i class="feather-trash-2 me-2"></i>Excluir
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xxl-8 col-lg-10">
+        <div class="card stretch stretch-full">
+            <div class="card-header">
+                <h5 class="card-title">Informações do Produtor</h5>
+                <div>
+                    {% if producer.is_active %}
+                    <span class="badge bg-soft-success text-success">Ativo</span>
+                    {% else %}
+                    <span class="badge bg-soft-danger text-danger">Inativo</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted fs-12">Nome</label>
+                        <p class="fw-semibold mb-0">{{ producer.name }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted fs-12">CPF</label>
+                        <p class="fw-semibold mb-0">{{ producer.cpf }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted fs-12">Agente</label>
+                        <p class="fw-semibold mb-0">
+                            {% if producer.agent %}
+                            <a href="{% url 'agents:agent_detail' producer.agent.pk %}">{{ producer.agent.name }}</a>
+                            {% else %}
+                            <span class="text-muted">Direto da corretora</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted fs-12">Código SUSEP</label>
+                        <p class="fw-semibold mb-0">{{ producer.susep_code|default:'-' }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted fs-12">Email</label>
+                        <p class="fw-semibold mb-0">{{ producer.email|default:'-' }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted fs-12">Telefone</label>
+                        <p class="fw-semibold mb-0">{{ producer.phone|default:'-' }}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label text-muted fs-12">Comissão (%)</label>
+                        <p class="fw-semibold mb-0">{{ producer.commission_rate|default:'-' }}</p>
+                    </div>
+                    {% if producer.notes %}
+                    <div class="col-md-12">
+                        <label class="form-label text-muted fs-12">Observações</label>
+                        <p class="fw-semibold mb-0">{{ producer.notes }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

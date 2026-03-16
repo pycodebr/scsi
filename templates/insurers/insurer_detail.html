@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ insurer.name }}{% endblock %}
+{% block nav_insurers %}active{% endblock %}
+{% block page_title %}{{ insurer.name }}{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'insurers:insurer_list' %}">Seguradoras</a></li>
+<li class="breadcrumb-item">{{ insurer.name }}</li>
+{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'insurers:insurer_update' insurer.pk %}" class="btn btn-primary">
+    <i class="feather-edit me-2"></i>Editar
+</a>
+<a href="{% url 'insurers:insurer_delete' insurer.pk %}" class="btn btn-danger">
+    <i class="feather-trash-2 me-2"></i>Excluir
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xxl-8 col-lg-10">
+        <div class="card stretch stretch-full">
+            <div class="card-header">
+                <h5 class="card-title">Dados da Seguradora</h5>
+                <div class="card-header-action">
+                    {% if insurer.is_active %}
+                    <span class="badge bg-soft-success text-success">Ativo</span>
+                    {% else %}
+                    <span class="badge bg-soft-danger text-danger">Inativo</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted">Nome</label>
+                        <p>{{ insurer.name }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted">CNPJ</label>
+                        <p>{{ insurer.cnpj|default:'-' }}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold text-muted">Codigo SUSEP</label>
+                        <p>{{ insurer.susep_code|default:'-' }}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold text-muted">Email</label>
+                        <p>{{ insurer.email|default:'-' }}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold text-muted">Telefone</label>
+                        <p>{{ insurer.phone|default:'-' }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted">Website</label>
+                        <p>
+                            {% if insurer.website %}
+                            <a href="{{ insurer.website }}" target="_blank">{{ insurer.website }}</a>
+                            {% else %}
+                            -
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted">Nome do Contato</label>
+                        <p>{{ insurer.contact_name|default:'-' }}</p>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label fw-semibold text-muted">Observacoes</label>
+                        <p>{{ insurer.notes|default:'-' }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted">Criado em</label>
+                        <p>{{ insurer.created_at|date:'d/m/Y H:i' }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted">Atualizado em</label>
+                        <p>{{ insurer.updated_at|date:'d/m/Y H:i' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

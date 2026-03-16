@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if form.instance.pk %}Editar Cliente{% else %}Novo Cliente{% endif %}{% endblock %}
+{% block nav_clients %}active{% endblock %}
+{% block page_title %}{% if form.instance.pk %}Editar Cliente{% else %}Novo Cliente{% endif %}{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'clients:client_list' %}">Clientes</a></li>
+<li class="breadcrumb-item">{% if form.instance.pk %}Editar{% else %}Novo{% endif %}</li>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-xxl-8 col-lg-10">
+        <div class="card stretch stretch-full">
+            <div class="card-header">
+                <h5 class="card-title">{% if form.instance.pk %}Editar Cliente{% else %}Novo Cliente{% endif %}</h5>
+            </div>
+            <div class="card-body">
+                {% if form.errors %}
+                <div class="alert alert-soft-danger mb-4">
+                    <div class="d-flex align-items-center">
+                        <i class="feather-alert-circle me-2"></i>
+                        <div>
+                            <strong>Corrija os erros abaixo:</strong>
+                            <ul class="mb-0 mt-1">
+                                {% for field in form %}
+                                    {% for error in field.errors %}
+                                    <li>{{ field.label }}: {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                                {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <!-- Row 1: Tipo + Nome -->
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="{{ form.client_type.id_for_label }}" class="form-label">{{ form.client_type.label }}</label>
+                            {{ form.client_type }}
+                        </div>
+                        <div class="col-md-8">
+                            <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }}</label>
+                            {{ form.name }}
+                        </div>
+                    </div>
+
+                    <!-- Row 2: CPF/CNPJ + Email -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.cpf_cnpj.id_for_label }}" class="form-label">{{ form.cpf_cnpj.label }}</label>
+                            {{ form.cpf_cnpj }}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}</label>
+                            {{ form.email }}
+                        </div>
+                    </div>
+
+                    <!-- Row 3: Telefone + Telefone Secundário + Data de Nascimento -->
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="{{ form.phone.id_for_label }}" class="form-label">{{ form.phone.label }}</label>
+                            {{ form.phone }}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ form.secondary_phone.id_for_label }}" class="form-label">{{ form.secondary_phone.label }}</label>
+                            {{ form.secondary_phone }}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ form.birth_date.id_for_label }}" class="form-label">{{ form.birth_date.label }}</label>
+                            {{ form.birth_date }}
+                        </div>
+                    </div>
+
+                    <!-- Row 4: Endereço -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="{{ form.address.id_for_label }}" class="form-label">{{ form.address.label }}</label>
+                            {{ form.address }}
+                        </div>
+                    </div>
+
+                    <!-- Row 5: Cidade + Estado + CEP -->
+                    <div class="row mb-3">
+                        <div class="col-md-5">
+                            <label for="{{ form.city.id_for_label }}" class="form-label">{{ form.city.label }}</label>
+                            {{ form.city }}
+                        </div>
+                        <div class="col-md-3">
+                            <label for="{{ form.state.id_for_label }}" class="form-label">{{ form.state.label }}</label>
+                            {{ form.state }}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ form.zip_code.id_for_label }}" class="form-label">{{ form.zip_code.label }}</label>
+                            {{ form.zip_code }}
+                        </div>
+                    </div>
+
+                    <!-- Row 6: Produtor Responsável -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.assigned_producer.id_for_label }}" class="form-label">{{ form.assigned_producer.label }}</label>
+                            {{ form.assigned_producer }}
+                        </div>
+                    </div>
+
+                    <!-- Row 7: Observações -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="{{ form.notes.id_for_label }}" class="form-label">{{ form.notes.label }}</label>
+                            {{ form.notes }}
+                        </div>
+                    </div>
+
+                    <!-- Row 8: Ativo -->
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <div class="form-check">
+                                {{ form.is_active }}
+                                <label for="{{ form.is_active.id_for_label }}" class="form-check-label">{{ form.is_active.label }}</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="feather-save me-2"></i> Salvar
+                        </button>
+                        <a href="{% url 'clients:client_list' %}" class="btn btn-light">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
