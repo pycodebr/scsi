@@ -291,7 +291,7 @@ healthcheck:
 **Arquivo:** `docker-stack.yml:39`
 
 ```yaml
-image: ghcr.io/pycodebr/scsi_v1:latest
+image: ghcr.io/pycodebr/scsi:latest
 ```
 
 `registry.example.com` é claramente um placeholder. Risco de deploy com imagem incorreta ou inexistente se não substituído.

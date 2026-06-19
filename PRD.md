@@ -2281,7 +2281,7 @@ services:
         constraints: [node.role == manager]
 
   app:
-    image: ghcr.io/pycodebr/scsi_v1:latest
+    image: ghcr.io/pycodebr/scsi:latest
     command: gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 3
     env_file: .env
     volumes:
@@ -2319,7 +2319,7 @@ services:
     networks: [internal]
 
   celery_worker:
-    image: ghcr.io/pycodebr/scsi_v1:latest
+    image: ghcr.io/pycodebr/scsi:latest
     command: celery -A core worker -l info
     env_file: .env
     volumes:
@@ -2329,7 +2329,7 @@ services:
       replicas: 2
 
   celery_beat:
-    image: ghcr.io/pycodebr/scsi_v1:latest
+    image: ghcr.io/pycodebr/scsi:latest
     command: celery -A core beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
     env_file: .env
     networks: [internal]
@@ -2420,8 +2420,8 @@ printf 'sk-...'          | docker secret create scsi_openai_key  -
 ```bash
 # em um registry (Docker Hub / GHCR / registry privado)
 docker login registry.example.com
-docker build -t ghcr.io/pycodebr/scsi_v1:latest .
-docker push ghcr.io/pycodebr/scsi_v1:latest
+docker build -t ghcr.io/pycodebr/scsi:latest .
+docker push ghcr.io/pycodebr/scsi:latest
 ```
 
 ### 45.9 Deploy das stacks
@@ -2465,10 +2465,10 @@ docker volume ls | grep scsi
 - **Backups/logs:** ver seções 47 e 48.
 - **Atualização (rolling update):**
   ```bash
-  docker build -t ghcr.io/pycodebr/scsi_v1:latest .
-  docker push ghcr.io/pycodebr/scsi_v1:latest
-  docker service update --image ghcr.io/pycodebr/scsi_v1:latest scsi_app
-  docker service update --image ghcr.io/pycodebr/scsi_v1:latest scsi_celery_worker
+  docker build -t ghcr.io/pycodebr/scsi:latest .
+  docker push ghcr.io/pycodebr/scsi:latest
+  docker service update --image ghcr.io/pycodebr/scsi:latest scsi_app
+  docker service update --image ghcr.io/pycodebr/scsi:latest scsi_celery_worker
   ```
 
 ---

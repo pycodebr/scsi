@@ -84,14 +84,14 @@ celery_beat:
 
 ```yaml
 celery_worker:
-  image: ghcr.io/pycodebr/scsi_v1:latest
+  image: ghcr.io/pycodebr/scsi:latest
   command: celery -A core worker -l info
   env_file: .env
   deploy:
     replicas: 2
 
 celery_beat:
-  image: ghcr.io/pycodebr/scsi_v1:latest
+  image: ghcr.io/pycodebr/scsi:latest
   command: celery -A core beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
   env_file: .env
   deploy:

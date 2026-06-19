@@ -90,7 +90,7 @@ services:
           memory: 64M
 
   app:
-    image: ghcr.io/pycodebr/scsi_v1:latest
+    image: ghcr.io/pycodebr/scsi:latest
     command: >
       gunicorn core.wsgi:application
       --bind 0.0.0.0:8000
@@ -110,7 +110,7 @@ services:
       - static_data:/app/staticfiles
     networks:
       - traefik_public
-      - scsi_v1_internal
+      - scsi_internal
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/')"]
       interval: 30s
@@ -163,7 +163,7 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
     networks:
-      - scsi_v1_internal
+      - scsi_internal
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 10s
@@ -191,7 +191,7 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
-      - scsi_v1_internal
+      - scsi_internal
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
       interval: 15s
@@ -219,7 +219,7 @@ services:
     volumes:
       - redis_data:/data
     networks:
-      - scsi_v1_internal
+      - scsi_internal
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -242,15 +242,15 @@ services:
           memory: 64M
 
   celery_worker:
-    image: ghcr.io/pycodebr/scsi_v1:latest
+    image: ghcr.io/pycodebr/scsi:latest
     entrypoint: ["./worker-entrypoint.sh"]
     command: celery -A core worker -l info
     env_file: .env
     volumes:
       - media_data:/app/media
     networks:
-      - scsi_v1_internal
-      - scsi_v1_egress
+      - scsi_internal
+      - scsi_egress
     deploy:
       replicas: 2
       update_config:
@@ -272,13 +272,13 @@ services:
           memory: 256M
 
   celery_beat:
-    image: ghcr.io/pycodebr/scsi_v1:latest
+    image: ghcr.io/pycodebr/scsi:latest
     entrypoint: ["./worker-entrypoint.sh"]
     command: celery -A core beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
     env_file: .env
     networks:
-      - scsi_v1_internal
-      - scsi_v1_egress
+      - scsi_internal
+      - scsi_egress
     deploy:
       replicas: 1
       restart_policy:
@@ -297,10 +297,10 @@ services:
 networks:
   traefik_public:
     external: true
-  scsi_v1_internal:
+  scsi_internal:
     driver: overlay
     internal: true
-  scsi_v1_egress:
+  scsi_egress:
     driver: overlay
 
 volumes:

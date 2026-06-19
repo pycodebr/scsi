@@ -53,10 +53,10 @@ docker service scale scsi_celery_worker=2
 ### Deploy de nova versão
 
 ```bash
-docker build -t ghcr.io/pycodebr/scsi_v1:latest .
-docker push ghcr.io/pycodebr/scsi_v1:latest
-docker service update --image ghcr.io/pycodebr/scsi_v1:latest scsi_app
-docker service update --image ghcr.io/pycodebr/scsi_v1:latest scsi_celery_worker
+docker build -t ghcr.io/pycodebr/scsi:latest .
+docker push ghcr.io/pycodebr/scsi:latest
+docker service update --image ghcr.io/pycodebr/scsi:latest scsi_app
+docker service update --image ghcr.io/pycodebr/scsi:latest scsi_celery_worker
 ```
 
 ### Migração em produção

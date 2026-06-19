@@ -245,7 +245,7 @@ phase_system() {
   echo "  ${GREY}(ele vira a pasta principal e prefixo de variáveis, redes e stack)${RESET}"
   PROJECT_NAME="$(ask "Nome do projeto (igual ao repositório)" "")"
   while [[ -z "$PROJECT_NAME" || "$PROJECT_NAME" =~ [[:space:]] ]]; do
-    warn "Informe um nome sem espaços (ex: scsi_v1)."
+    warn "Informe um nome sem espaços (ex: scsi)."
     PROJECT_NAME="$(ask "Nome do projeto (igual ao repositório)" "")"
   done
 

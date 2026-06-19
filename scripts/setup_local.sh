@@ -557,7 +557,7 @@ while true; do
   if [[ -z "$PROJECT_NAME" ]]; then
     warn "O nome não pode ser vazio."
   elif [[ "$PROJECT_NAME" =~ [[:space:]] ]]; then
-    warn "O nome não pode ter espaços. Use _ ou - (ex: scsi_v1)."
+    warn "O nome não pode ter espaços. Use _ ou - (ex: scsi)."
   elif [[ ! "$PROJECT_NAME" =~ ^[A-Za-z0-9._-]+$ ]]; then
     warn "Use apenas letras, números, ponto, hífen ou underline."
   else

@@ -414,7 +414,7 @@ if ([string]::IsNullOrWhiteSpace($BaseDir)) { $BaseDir = $DefaultDir }
 while ($true) {
   $ProjectName = Read-Host "  Qual o nome do projeto? (nao use espacos)"
   if ([string]::IsNullOrWhiteSpace($ProjectName)) { Warn "O nome nao pode ser vazio." }
-  elseif ($ProjectName -match '\s') { Warn "O nome nao pode ter espacos. Use _ ou - (ex: scsi_v1)." }
+  elseif ($ProjectName -match '\s') { Warn "O nome nao pode ter espacos. Use _ ou - (ex: scsi)." }
   elseif ($ProjectName -notmatch '^[A-Za-z0-9._-]+$') { Warn "Use apenas letras, numeros, ponto, hifen ou underline." }
   else { break }
 }

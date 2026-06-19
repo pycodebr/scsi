@@ -13,8 +13,8 @@ set -euo pipefail
 #   - login no GHCR (ou exporte GITHUB_TOKEN com scope write:packages para login automático)
 
 REGISTRY="ghcr.io/pycodebr"
-IMAGE="$REGISTRY/scsi_v1"
-STACK_NAME="scsi_v1"
+IMAGE="$REGISTRY/scsi"
+STACK_NAME="scsi"
 STACK_FILE="docker-stack.yml"
 URL="https://scsi.digital"
 
