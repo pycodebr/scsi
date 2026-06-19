@@ -1,72 +1,194 @@
-{% extends 'base.html' %}
+{% extends 'base_app.html' %}
 
-{% block title %}Meu Perfil{% endblock %}
-{% block nav_profile %}active{% endblock %}
-{% block page_title %}Meu Perfil{% endblock %}
+{% block title %}Meu perfil — SCSI{% endblock %}
+{% block page_title %}Meu perfil{% endblock %}
+
 {% block breadcrumb %}
-<li class="breadcrumb-item">Meu Perfil</li>
+    <li class="breadcrumb-item"><a href="/">Início</a></li>
+    <li class="breadcrumb-item active">Meu perfil</li>
 {% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-xxl-8 col-lg-10">
-        <div class="card stretch stretch-full">
-            <div class="card-header">
-                <h5 class="card-title">Editar Perfil</h5>
+<style>
+.profile-avatar {
+    width: 80px; height: 80px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.75rem; font-weight: 700; color: #fff;
+    background: linear-gradient(135deg, #3b82f6, #6366f1);
+}
+.profile-card { border-radius: 12px; }
+.profile-card .card-header { border-radius: 12px 12px 0 0; }
+.nav-pills .nav-link { border-radius: 8px; color: #64748b; }
+.nav-pills .nav-link.active { background: #3b82f6; color: #fff; }
+</style>
+
+<div class="row g-4">
+    {# Coluna esquerda — info do usuário #}
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm profile-card">
+            <div class="card-body p-4 text-center">
+                <div class="profile-avatar mx-auto mb-3">
+                    {{ user.first_name|default:user.email|slice:":2"|upper }}
+                </div>
+                <h5 class="mb-1">{{ user.get_full_name|default:"Sem nome" }}</h5>
+                <p class="text-muted mb-2">{{ user.email }}</p>
+                {% if user.brokerage %}
+                <span class="badge bg-primary bg-opacity-10 text-primary">{{ user.get_role_display }}</span>
+                <p class="text-muted mt-1 mb-0 small">{{ user.brokerage.trade_name }}</p>
+                {% else %}
+                <span class="badge bg-secondary">Sem corretora vinculada</span>
+                {% endif %}
+
+                <hr class="my-3">
+
+                <div class="text-start">
+                    <div class="d-flex justify-content-between py-2 border-bottom">
+                        <span class="text-muted">Telefone</span>
+                        <span>{{ user.phone|default:"—" }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-2 border-bottom">
+                        <span class="text-muted">Corretora</span>
+                        <span>{{ user.brokerage.legal_name|default:"—" }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-2 border-bottom">
+                        <span class="text-muted">CNPJ</span>
+                        <span>{{ user.brokerage.cnpj|default:"—" }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-2">
+                        <span class="text-muted">Membro desde</span>
+                        <span>{{ user.date_joined|date:"d/m/Y" }}</span>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <form method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
+        </div>
 
-                    {% if form.errors %}
-                    <div class="alert alert-soft-danger mb-3">
-                        <ul class="mb-0 fs-12">
-                            {% for field in form %}
-                                {% for error in field.errors %}
-                                <li>{{ field.label }}: {{ error }}</li>
-                                {% endfor %}
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    {% endif %}
+        {% if user.brokerage %}
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-body p-4">
+                <h6 class="fw-bold mb-3"><i class="feather-home me-1"></i> Dados da corretora</h6>
+                <div class="mb-2"><span class="text-muted small">Razão Social</span><br>{{ user.brokerage.legal_name }}</div>
+                <div class="mb-2"><span class="text-muted small">Nome Fantasia</span><br>{{ user.brokerage.trade_name }}</div>
+                <div class="mb-2"><span class="text-muted small">E-mail</span><br>{{ user.brokerage.email|default:"—" }}</div>
+                <div class="mb-2"><span class="text-muted small">Telefone</span><br>{{ user.brokerage.phone|default:"—" }}</div>
+                {% if user.brokerage.plan %}
+                <div class="mt-3 p-2 rounded" style="background:#f0f7ff;">
+                    <span class="text-muted small">Plano</span><br>
+                    <span class="fw-semibold text-primary">{{ user.brokerage.plan.name }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
 
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Nome</label>
-                            {{ form.first_name }}
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Sobrenome</label>
-                            {{ form.last_name }}
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Telefone</label>
-                            {{ form.phone }}
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">CPF</label>
-                            {{ form.cpf }}
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Email</label>
-                            <input type="email" class="form-control" value="{{ user.email }}" readonly>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Papel</label>
-                            <input type="text" class="form-control" value="{{ user.get_role_display }}" readonly>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Foto</label>
-                            {{ form.avatar }}
-                        </div>
-                    </div>
+    {# Coluna direita — formulário + ações #}
+    <div class="col-lg-8">
+        {# Tabs #}
+        <ul class="nav nav-pills mb-4" id="profileTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="info-tab" data-bs-toggle="pill" data-bs-target="#info-pane" type="button" role="tab" aria-controls="info-pane" aria-selected="true">
+                    <i class="feather-user me-1"></i> Informações pessoais
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="security-tab" data-bs-toggle="pill" data-bs-target="#security-pane" type="button" role="tab" aria-controls="security-pane" aria-selected="false">
+                    <i class="feather-lock me-1"></i> Segurança
+                </button>
+            </li>
+        </ul>
 
-                    <div class="mt-4">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="feather-save me-2"></i>Salvar Alterações
-                        </button>
+        <div class="tab-content">
+            {# Tab: Informações pessoais #}
+            <div class="tab-pane fade show active" id="info-pane" role="tabpanel" aria-labelledby="info-tab">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        {% if messages %}
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} py-2" role="alert">{{ message }}</div>
+                        {% endfor %}
+                        {% endif %}
+
+                        <form method="post" novalidate>
+                            {% csrf_token %}
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="{{ form.first_name.id_for_label }}" class="form-label fw-semibold">Nome</label>
+                                    {{ form.first_name }}
+                                    {% if form.first_name.errors %}
+                                    <div class="text-danger small mt-1">{{ form.first_name.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="{{ form.last_name.id_for_label }}" class="form-label fw-semibold">Sobrenome</label>
+                                    {{ form.last_name }}
+                                    {% if form.last_name.errors %}
+                                    <div class="text-danger small mt-1">{{ form.last_name.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-12">
+                                    <label for="{{ form.email.id_for_label }}" class="form-label fw-semibold">E-mail</label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                    <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end mt-4 gap-2">
+                                <a href="{% url 'dashboard:dashboard' %}" class="btn btn-outline-secondary">Cancelar</a>
+                                <button type="submit" class="btn btn-primary"><i class="feather-save me-1"></i>Salvar alterações</button>
+                            </div>
+                        </form>
                     </div>
-                </form>
+                </div>
+            </div>
+
+            {# Tab: Segurança #}
+            <div class="tab-pane fade" id="security-pane" role="tabpanel" aria-labelledby="security-tab">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-start gap-3 p-3 rounded" style="background:#f8fafc;">
+                            <div class="flex-shrink-0">
+                                <div class="d-flex align-items-center justify-content-center rounded-circle" style="width:48px;height:48px;background:#e0e7ff;">
+                                    <i class="feather-key text-primary" style="font-size:20px;"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">Alterar senha</h6>
+                                <p class="text-muted small mb-0">Enviaremos um e-mail com instruções para redefinir sua senha.</p>
+                            </div>
+                            <div class="flex-shrink-0">
+                                <a href="{% url 'accounts:password_reset' %}" class="btn btn-outline-primary btn-sm">Alterar senha</a>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h6 class="fw-bold mb-3">Sessão atual</h6>
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                            <div>
+                                <div class="fw-semibold small">Último login</div>
+                                <div class="text-muted small">{{ user.last_login|date:"d/m/Y H:i"|default:"—" }}</div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center py-2">
+                            <div>
+                                <div class="fw-semibold small">Conta criada em</div>
+                                <div class="text-muted small">{{ user.date_joined|date:"d/m/Y" }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm mt-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold text-danger mb-3"><i class="feather-alert-triangle me-1"></i> Zona de perigo</h6>
+                        <p class="text-muted small mb-3">Ao sair, você será desconectado e precisará fazer login novamente.</p>
+                        <a href="{% url 'accounts:logout' %}" class="btn btn-outline-danger btn-sm">
+                            <i class="feather-log-out me-1"></i> Sair da conta
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

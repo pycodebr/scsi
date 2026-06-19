@@ -1,0 +1,101 @@
+{% extends 'base_app.html' %}
+
+{% block title %}{{ form.instance.pk|yesno:"Editar Sinistro|Novo Sinistro" }} — SCSI{% endblock %}
+{% block page_title %}{{ form.instance.pk|yesno:"Editar Sinistro|Novo Sinistro" }}{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="/">Início</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'claims:claim_list' %}">Sinistros</a></li>
+    <li class="breadcrumb-item active">{{ form.instance.pk|yesno:"Editar|Novo" }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        <form method="post" id="claim-form">
+            {% csrf_token %}
+
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Apólice *</label>
+                    {{ form.policy }}
+                    {{ form.policy.errors }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Item Coberto *</label>
+                    {{ form.covered_item }}
+                    {{ form.covered_item.errors }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Nº Sinistro *</label>
+                    {{ form.claim_number }}
+                    {{ form.claim_number.errors }}
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Data Ocorrência *</label>
+                    {{ form.occurrence_date }}
+                    {{ form.occurrence_date.errors }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Data Aviso *</label>
+                    {{ form.notice_date }}
+                    {{ form.notice_date.errors }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Valor Reclamado</label>
+                    {{ form.claimed_amount }}
+                    {{ form.claimed_amount.errors }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Valor Aprovado</label>
+                    {{ form.approved_amount }}
+                    {{ form.approved_amount.errors }}
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Status</label>
+                    {{ form.status }}
+                    {{ form.status.errors }}
+                </div>
+            </div>
+
+            <div class="col-12 mt-3">
+                <label class="form-label">Descrição</label>
+                {{ form.description }}
+                {{ form.description.errors }}
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{% url 'claims:claim_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary">Salvar</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const policySelect = document.getElementById('id_policy');
+    const itemSelect = document.getElementById('id_covered_item');
+    if (policySelect && itemSelect) {
+        policySelect.addEventListener('change', function() {
+            itemSelect.innerHTML = '<option value="">---------</option>';
+            if (!this.value) return;
+            fetch(`/apolices/${this.value}/items-json/`)
+                .then(r => r.json())
+                .then(data => {
+                    data.items.forEach(function(item) {
+                        const opt = document.createElement('option');
+                        opt.value = item.id;
+                        opt.textContent = item.text;
+                        itemSelect.appendChild(opt);
+                    });
+                });
+        });
+    }
+});
+</script>
+{% endblock %}

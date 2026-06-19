@@ -1,104 +1,31 @@
 {% extends 'base_auth.html' %}
-{% load static %}
 
-{% block title %}Criar Conta{% endblock %}
-{% block meta_description %}Crie sua conta gratuita no SCSI e comece a gerenciar sua corretora de seguros de forma inteligente.{% endblock %}
+{% block title %}Criar conta — SCSI{% endblock %}
 
-{% block extra_css %}
-<style>
-    .auth-card {
-        max-width: 560px;
-    }
-</style>
-{% endblock %}
+{% block auth_content %}
+<h4 class="card-title text-center mb-4">Criar conta</h4>
 
-{% block content %}
-<h5 class="mb-1">Criar Conta</h5>
-<p class="fs-12 text-muted mb-4">Cadastre-se para começar a usar o SCSI</p>
-
-<form method="post" id="register-form">
+<form method="post" novalidate>
     {% csrf_token %}
 
-    {% if form.errors %}
-    <div class="alert alert-soft-danger mb-3">
-        <ul class="mb-0 fs-12">
-            {% for field in form %}
-                {% for error in field.errors %}
-                <li>{{ field.label }}: {{ error }}</li>
-                {% endfor %}
-            {% endfor %}
-            {% for error in form.non_field_errors %}
-            <li>{{ error }}</li>
-            {% endfor %}
-        </ul>
+    {% for field in form %}
+    <div class="mb-3">
+        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+        <div class="text-danger small">{{ field.errors.0 }}</div>
+        {% endif %}
     </div>
+    {% endfor %}
+
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger py-2">{{ form.non_field_errors }}</div>
     {% endif %}
 
-    <!-- Dados do Usuário -->
-    <h6 class="fw-bold text-dark mb-3 fs-13">
-        <i class="feather-user me-2"></i>Seus Dados
-    </h6>
-
-    <div class="row g-3 mb-3">
-        <div class="col-md-6">
-            <label class="form-label" for="id_first_name">Nome *</label>
-            {{ form.first_name }}
-        </div>
-        <div class="col-md-6">
-            <label class="form-label" for="id_last_name">Sobrenome *</label>
-            {{ form.last_name }}
-        </div>
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label" for="id_email">Email *</label>
-        {{ form.email }}
-    </div>
-
-    <div class="row g-3 mb-4">
-        <div class="col-md-6">
-            <label class="form-label" for="id_password">Senha *</label>
-            {{ form.password }}
-        </div>
-        <div class="col-md-6">
-            <label class="form-label" for="id_password_confirm">Confirmar Senha *</label>
-            {{ form.password_confirm }}
-        </div>
-    </div>
-
-    <hr class="border-dashed mb-4">
-
-    <!-- Dados da Corretora -->
-    <h6 class="fw-bold text-dark mb-3 fs-13">
-        <i class="feather-briefcase me-2"></i>Dados da Corretora
-    </h6>
-
-    <div class="row g-3 mb-3">
-        <div class="col-md-6">
-            <label class="form-label" for="id_cnpj">CNPJ *</label>
-            {{ form.cnpj }}
-        </div>
-        <div class="col-md-6">
-            <label class="form-label" for="id_brokerage_phone">Telefone</label>
-            {{ form.brokerage_phone }}
-        </div>
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label" for="id_legal_name">Razão Social *</label>
-        {{ form.legal_name }}
-    </div>
-
-    <div class="mb-4">
-        <label class="form-label" for="id_trade_name">Nome Fantasia</label>
-        {{ form.trade_name }}
-    </div>
-
-    <button type="submit" class="btn btn-primary w-100">Criar Conta</button>
+    <button type="submit" class="btn btn-primary w-100">Criar conta</button>
 </form>
 
-<div class="text-center mt-4">
-    <span class="fs-12 text-muted">Já tem uma conta?</span>
-    <a href="{% url 'accounts:login' %}" class="fs-13 fw-bold text-primary ms-1">Entrar</a>
+<div class="text-center mt-3">
+    <a href="{% url 'accounts:login' %}" class="small">Já tem conta? Entrar</a>
 </div>
 {% endblock %}

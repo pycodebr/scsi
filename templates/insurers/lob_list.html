@@ -1,0 +1,88 @@
+{% extends 'base_app.html' %}
+
+{% block title %}Ramos — SCSI{% endblock %}
+{% block page_title %}Ramos{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="/">Início</a></li>
+    <li class="breadcrumb-item active">Ramos</li>
+{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'insurers:lob_create' %}" class="btn btn-primary btn-sm">Novo ramo</a>
+{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">Buscar</label>
+                <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Nome ou código...">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Categoria</label>
+                <select name="category" class="form-select">
+                    <option value="">Todas categorias</option>
+                    {% for cat_val, cat_label in categories %}
+                    <option value="{{ cat_val }}" {% if category == cat_val %}selected{% endif %}>{{ cat_label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Status</label>
+                <select name="is_active" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="1" {% if is_active == '1' %}selected{% endif %}>Ativos</option>
+                    <option value="0" {% if is_active == '0' %}selected{% endif %}>Inativos</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-outline-primary w-100"><i class="bi bi-search"></i> Buscar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if lobs %}
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Código SUSEP</th>
+                        <th>Categoria</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for lob in lobs %}
+                    <tr>
+                        <td>{{ lob.name }}</td>
+                        <td>{{ lob.code|default:"—" }}</td>
+                        <td><span class="badge bg-secondary">{{ lob.get_category_display }}</span></td>
+                        <td>
+                            {% if lob.is_active %}
+                            <span class="badge bg-success">Ativo</span>
+                            {% else %}
+                            <span class="badge bg-danger">Inativo</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'insurers:lob_update' lob.pk %}" class="btn btn-outline-primary btn-sm">Editar</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% include "partials/_pagination.html" %}
+{% else %}
+<div class="alert alert-info">Nenhum ramo cadastrado.</div>
+{% endif %}
+{% endblock %}

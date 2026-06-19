@@ -1,0 +1,73 @@
+{% extends 'base_app.html' %}
+{% load brl_tags %}
+
+{% block title %}Endossos — SCSI{% endblock %}
+{% block page_title %}Endossos{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="/">Início</a></li>
+    <li class="breadcrumb-item active">Endossos</li>
+{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'insurance:endorsement_create' %}" class="btn btn-primary btn-sm">Novo endosso</a>
+{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Tipo</label>
+                {{ search_form.type }}
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Status</label>
+                {{ search_form.status }}
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-search"></i> Filtrar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if endorsements %}
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Nº Endosso</th>
+                        <th>Apólice</th>
+                        <th>Tipo</th>
+                        <th>Variação Prêmio</th>
+                        <th>Vigência</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for end in endorsements %}
+                    <tr>
+                        <td><a href="{{ end.get_absolute_url }}">{{ end.endorsement_number }}</a></td>
+                        <td><a href="{{ end.policy.get_absolute_url }}">{{ end.policy.policy_number }}</a></td>
+                        <td>{{ end.get_type_display }}</td>
+                        <td>{% if end.premium_change >= 0 %}+{% endif %}{{ end.premium_change|brl }}</td>
+                        <td>{{ end.effective_date|date:"d/m/Y" }}</td>
+                        <td><span class="badge {{ end.status|slugify }}">{{ end.get_status_display }}</span></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% include "partials/_pagination.html" %}
+{% else %}
+<div class="alert alert-info">Nenhum endosso cadastrado.</div>
+{% endif %}
+{% endblock %}

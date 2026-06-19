@@ -1,0 +1,55 @@
+{% if is_paginated %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
+    <div class="d-flex align-items-center gap-1 text-muted small">
+        <span>{{ page_obj.paginator.count }} registro{{ page_obj.paginator.count|pluralize }}</span>
+        <span class="mx-1">·</span>
+        <label for="per-page-select" class="mb-0">por página:</label>
+        <select id="per-page-select" class="form-select form-select-sm" style="width:auto;" onchange="perPageChange(this)">
+            {% for n in per_page_choices %}
+            <option value="{{ n }}" {% if n == current_per_page %}selected{% endif %}>{{ n }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <nav aria-label="Paginação">
+        <ul class="pagination pagination-sm mb-0">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, val in pagination_params.items %}&{{ key }}={{ val }}{% endfor %}&per_page={{ current_per_page }}">
+                    <i class="feather-chevron-left"></i>
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link"><i class="feather-chevron-left"></i></span></li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num >= page_obj.number|add:"-3" and num <= page_obj.number|add:"3" %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ num }}{% for key, val in pagination_params.items %}&{{ key }}={{ val }}{% endfor %}&per_page={{ current_per_page }}">{{ num }}</a>
+            </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, val in pagination_params.items %}&{{ key }}={{ val }}{% endfor %}&per_page={{ current_per_page }}">
+                    <i class="feather-chevron-right"></i>
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link"><i class="feather-chevron-right"></i></span></li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+<script>
+function perPageChange(sel) {
+    var url = new URL(window.location);
+    url.searchParams.set('per_page', sel.value);
+    url.searchParams.set('page', '1');
+    window.location = url.toString();
+}
+</script>
+{% endif %}

@@ -1,0 +1,33 @@
+{% extends 'base_auth.html' %}
+
+{% block title %}Cadastro da Corretora — SCSI{% endblock %}
+
+{% block auth_content %}
+<h4 class="card-title text-center mb-4">Cadastro da Corretora</h4>
+<p class="text-muted small text-center mb-4">
+    Informe os dados da corretora para iniciar. Você estará no plano <strong>Free</strong>.
+</p>
+
+<form method="post" novalidate>
+    {% csrf_token %}
+
+    {% for field in form %}
+    <div class="mb-3">
+        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+        <div class="text-danger small">{{ field.errors.0 }}</div>
+        {% endif %}
+        {% if field.help_text %}
+        <small class="text-muted">{{ field.help_text }}</small>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger py-2">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <button type="submit" class="btn btn-primary w-100">Criar corretora</button>
+</form>
+{% endblock %}

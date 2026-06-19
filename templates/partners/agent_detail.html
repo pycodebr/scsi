@@ -1,0 +1,89 @@
+{% extends 'base_app.html' %}
+
+{% block title %}{{ agent.name }} — SCSI{% endblock %}
+{% block page_title %}Agente: {{ agent.name }}{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="/">Início</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'partners:agent_list' %}">Agentes</a></li>
+    <li class="breadcrumb-item active">{{ agent.name }}</li>
+{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'partners:agent_update' agent.pk %}" class="btn btn-outline-primary btn-sm">Editar</a>
+{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+                <h5 class="card-title mb-3">Dados do Agente</h5>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <small class="text-muted d-block">Nome</small>
+                        <strong>{{ agent.name }}</strong>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <small class="text-muted d-block">Tipo</small>
+                        {{ agent.get_entity_type_display }}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <small class="text-muted d-block">CPF/CNPJ</small>
+                        {{ agent.document }}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <small class="text-muted d-block">E-mail</small>
+                        {{ agent.email|default:"—" }}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <small class="text-muted d-block">Telefone</small>
+                        {{ agent.phone|default:"—" }}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <small class="text-muted d-block">Código SUSEP</small>
+                        {{ agent.susep_code|default:"—" }}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <small class="text-muted d-block">Comissão padrão</small>
+                        {{ agent.default_commission_rate }}%
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <small class="text-muted d-block">Status</small>
+                        {% if agent.is_active %}<span class="badge bg-success">Ativo</span>{% else %}<span class="badge bg-secondary">Inativo</span>{% endif %}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <small class="text-muted d-block">Usuário vinculado</small>
+                        {% if agent.user %}{{ agent.user.get_full_name }}{% else %}—{% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if agent.producers.exists %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h5 class="card-title mb-3">Produtores vinculados</h5>
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover align-middle">
+                        <thead>
+                            <tr><th>Nome</th><th>CPF/CNPJ</th><th>Comissão (%)</th><th>Status</th></tr>
+                        </thead>
+                        <tbody>
+                        {% for prod in agent.producers.all %}
+                            <tr>
+                                <td><a href="{{ prod.get_absolute_url }}">{{ prod.name }}</a></td>
+                                <td>{{ prod.document }}</td>
+                                <td>{{ prod.default_commission_rate }}</td>
+                                <td>{% if prod.is_active %}<span class="badge bg-success">Ativo</span>{% else %}<span class="badge bg-secondary">Inativo</span>{% endif %}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

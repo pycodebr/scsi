@@ -1,80 +1,115 @@
-from django.contrib.auth import login, get_user_model
+from django.contrib import messages
+from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.views import LoginView as DjangoLoginView
-from django.contrib.auth.views import LogoutView as DjangoLogoutView
-from django.shortcuts import redirect
+from django.contrib.auth.views import LoginView
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
-from django.views.generic import FormView, UpdateView
+from django.views.generic import CreateView, ListView, UpdateView
 
-from accounts.forms import LoginForm, RegisterForm, ProfileForm
-from accounts.models import UserBrokerage
-from brokerages.models import Brokerage
-
-User = get_user_model()
-
-
-class LoginView(DjangoLoginView):
-    template_name = 'accounts/login.html'
-    authentication_form = LoginForm
-    redirect_authenticated_user = True
-
-    def get_success_url(self):
-        return reverse_lazy('dashboard:index')
+from base.mixins import RoleRequiredMixin, TenantQuerysetMixin
+from .forms import (
+    EmailAuthenticationForm,
+    MemberCreateForm,
+    MemberUpdateForm,
+    UserRegistrationForm,
+    UserProfileForm,
+)
+from .models import User
 
 
-class LogoutView(DjangoLogoutView):
-    next_page = '/'
-    http_method_names = ['get', 'post', 'options']
+class RegisterView(CreateView):
+    """Cadastro de usuário; autentica e redireciona ao onboarding."""
 
-    def get(self, request, *args, **kwargs):
-        return self.post(request, *args, **kwargs)
-
-
-class RegisterView(FormView):
+    model = User
+    form_class = UserRegistrationForm
     template_name = 'accounts/register.html'
-    form_class = RegisterForm
-    success_url = reverse_lazy('dashboard:index')
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return redirect('dashboard:index')
-        return super().dispatch(request, *args, **kwargs)
+    success_url = reverse_lazy('tenants:onboarding')
 
     def form_valid(self, form):
-        # Create user
-        user = User.objects.create_user(
-            email=form.cleaned_data['email'],
-            password=form.cleaned_data['password'],
-            first_name=form.cleaned_data['first_name'],
-            last_name=form.cleaned_data['last_name'],
-            role='owner',
-        )
+        response = super().form_valid(form)
+        login(self.request, self.object, backend='accounts.backends.EmailBackend')
+        messages.success(self.request, 'Conta criada com sucesso. Bem-vindo(a)!')
+        return response
 
-        # Create brokerage
-        brokerage = Brokerage.objects.create(
-            cnpj=form.cleaned_data['cnpj'],
-            legal_name=form.cleaned_data['legal_name'],
-            trade_name=form.cleaned_data.get('trade_name', ''),
-            phone=form.cleaned_data.get('brokerage_phone', ''),
-            status='active',
-        )
 
-        # Create UserBrokerage
-        UserBrokerage.objects.create(
-            user=user,
-            brokerage=brokerage,
-            is_default=True,
-        )
+class EmailLoginView(LoginView):
+    """Login por e-mail usando o template do Design System."""
 
-        # Login
-        login(self.request, user)
-        return super().form_valid(form)
+    template_name = 'accounts/login.html'
+    authentication_form = EmailAuthenticationForm
+    redirect_authenticated_user = True
 
 
 class ProfileView(LoginRequiredMixin, UpdateView):
+    """Edição do perfil do próprio usuário autenticado."""
+
+    model = User
+    form_class = UserProfileForm
     template_name = 'accounts/profile.html'
-    form_class = ProfileForm
     success_url = reverse_lazy('accounts:profile')
 
     def get_object(self, queryset=None):
         return self.request.user
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Perfil atualizado.')
+        return super().form_valid(form)
+
+
+class MemberListView(RoleRequiredMixin, ListView):
+    """Lista membros da corretora — owner/manager."""
+
+    allowed_roles = ('owner', 'manager')
+    model = User
+    template_name = 'accounts/member_list.html'
+    context_object_name = 'members'
+
+    def get_queryset(self):
+        return (
+            User.objects
+            .filter(brokerage=self.request.tenant, is_active=True)
+            .order_by('role', 'first_name')
+        )
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['max_users'] = self.request.tenant.plan.max_users
+        ctx['current_count'] = self.get_queryset().count()
+        return ctx
+
+
+class MemberCreateView(RoleRequiredMixin, CreateView):
+    """Cria membro dentro do tenant — owner/manager."""
+
+    allowed_roles = ('owner', 'manager')
+    model = User
+    form_class = MemberCreateForm
+    template_name = 'accounts/member_form.html'
+    success_url = reverse_lazy('accounts:member_list')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['brokerage'] = self.request.tenant
+        kwargs['max_users'] = self.request.tenant.plan.max_users
+        return kwargs
+
+    def form_valid(self, form):
+        messages.success(self.request, f'Membro {form.instance.email} criado com sucesso.')
+        return super().form_valid(form)
+
+
+class MemberUpdateView(RoleRequiredMixin, UpdateView):
+    """Atualiza membro dentro do tenant — owner/manager."""
+
+    allowed_roles = ('owner', 'manager')
+    model = User
+    form_class = MemberUpdateForm
+    template_name = 'accounts/member_form.html'
+    success_url = reverse_lazy('accounts:member_list')
+
+    def get_queryset(self):
+        return User.objects.filter(brokerage=self.request.tenant)
+
+    def form_valid(self, form):
+        messages.success(self.request, f'Membro {form.instance.email} atualizado.')
+        return super().form_valid(form)

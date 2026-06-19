@@ -1,85 +1,74 @@
-{% extends 'base.html' %}
+{% extends 'base_app.html' %}
 
-{% block title %}{% if form.instance.pk %}Editar Seguradora{% else %}Nova Seguradora{% endif %}{% endblock %}
-{% block nav_insurers %}active{% endblock %}
-{% block page_title %}{% if form.instance.pk %}Editar Seguradora{% else %}Nova Seguradora{% endif %}{% endblock %}
+{% block title %}{% if form.instance.pk %}Editar seguradora{% else %}Nova seguradora{% endif %} — SCSI{% endblock %}
+{% block page_title %}{% if form.instance.pk %}Editar seguradora{% else %}Nova seguradora{% endif %}{% endblock %}
+
 {% block breadcrumb %}
-<li class="breadcrumb-item"><a href="{% url 'insurers:insurer_list' %}">Seguradoras</a></li>
-<li class="breadcrumb-item">{% if form.instance.pk %}Editar{% else %}Novo{% endif %}</li>
+    <li class="breadcrumb-item"><a href="/">Início</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'insurers:insurer_list' %}">Seguradoras</a></li>
+    <li class="breadcrumb-item active">{% if form.instance.pk %}Editar{% else %}Nova{% endif %}</li>
 {% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-xxl-8 col-lg-10">
-        <div class="card stretch stretch-full">
-            <div class="card-header">
-                <h5 class="card-title">{% if form.instance.pk %}Editar Seguradora{% else %}Cadastrar Seguradora{% endif %}</h5>
-            </div>
-            <div class="card-body">
-                <form method="post">
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} py-2" role="alert">{{ message }}</div>
+                {% endfor %}
+                {% endif %}
+
+                <form method="post" novalidate>
                     {% csrf_token %}
 
-                    {% if form.errors %}
-                    <div class="alert alert-soft-danger mb-3">
-                        <ul class="mb-0 fs-12">
-                            {% for field in form %}
-                                {% for error in field.errors %}
-                                <li>{{ field.label }}: {{ error }}</li>
-                                {% endfor %}
-                            {% endfor %}
-                            {% for error in form.non_field_errors %}
-                            <li>{{ error }}</li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    {% endif %}
-
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Nome <span class="text-danger">*</span></label>
+                    <h6 class="border-bottom pb-2 mb-3">Dados da seguradora</h6>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.name.id_for_label }}" class="form-label">Nome *</label>
                             {{ form.name }}
+                            {% if form.name.errors %}<div class="text-danger small">{{ form.name.errors.0 }}</div>{% endif %}
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label">CNPJ</label>
+                        <div class="col-md-3 mb-3">
+                            <label for="{{ form.cnpj.id_for_label }}" class="form-label">CNPJ</label>
                             {{ form.cnpj }}
+                            {% if form.cnpj.errors %}<div class="text-danger small">{{ form.cnpj.errors.0 }}</div>{% endif %}
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Codigo SUSEP</label>
+                        <div class="col-md-3 mb-3">
+                            <label for="{{ form.susep_code.id_for_label }}" class="form-label">Registro SUSEP</label>
                             {{ form.susep_code }}
+                            {% if form.susep_code.errors %}<div class="text-danger small">{{ form.susep_code.errors.0 }}</div>{% endif %}
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Email</label>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.email.id_for_label }}" class="form-label">E-mail</label>
                             {{ form.email }}
+                            {% if form.email.errors %}<div class="text-danger small">{{ form.email.errors.0 }}</div>{% endif %}
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Telefone</label>
+                        <div class="col-md-3 mb-3">
+                            <label for="{{ form.phone.id_for_label }}" class="form-label">Telefone</label>
                             {{ form.phone }}
+                            {% if form.phone.errors %}<div class="text-danger small">{{ form.phone.errors.0 }}</div>{% endif %}
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Website</label>
-                            {{ form.website }}
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Nome do Contato</label>
-                            {{ form.contact_name }}
-                        </div>
-                        <div class="col-md-12">
-                            <label class="form-label">Observacoes</label>
-                            {{ form.notes }}
-                        </div>
-                        <div class="col-md-12">
+                        <div class="col-md-3 mb-3 d-flex align-items-end">
                             <div class="form-check">
                                 {{ form.is_active }}
-                                <label class="form-check-label">Ativo</label>
+                                <label for="{{ form.is_active.id_for_label }}" class="form-check-label ms-1">{{ form.is_active.label }}</label>
                             </div>
                         </div>
                     </div>
 
-                    <div class="mt-4">
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger py-2">{{ form.non_field_errors }}</div>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-between mt-3">
+                        <a href="{% url 'insurers:insurer_list' %}" class="btn btn-outline-secondary">Cancelar</a>
                         <button type="submit" class="btn btn-primary">
-                            <i class="feather-save me-2"></i>Salvar
+                            {% if form.instance.pk %}Salvar{% else %}Criar seguradora{% endif %}
                         </button>
-                        <a href="{% url 'insurers:insurer_list' %}" class="btn btn-secondary ms-2">Cancelar</a>
                     </div>
                 </form>
             </div>

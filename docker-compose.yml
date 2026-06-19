@@ -1,0 +1,82 @@
+services:
+  app:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    environment:
+      RUN_MIGRATIONS: '1'
+    volumes:
+      - .:/app
+      - media_data:/app/media
+    ports:
+      - '8000:8000'
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+      redis:
+        condition: service_started
+
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+
+  redis:
+    image: redis:7
+    ports:
+      - '6379:6379'
+
+  celery_worker:
+    build: .
+    command: celery -A core worker -l info
+    volumes:
+      - .:/app
+      - media_data:/app/media
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+      redis:
+        condition: service_started
+
+  celery_beat:
+    build: .
+    command: celery -A core beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    volumes:
+      - .:/app
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+      redis:
+        condition: service_started
+
+volumes:
+  pg_data:
+  media_data:

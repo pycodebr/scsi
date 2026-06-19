@@ -1,0 +1,49 @@
+{% extends 'base_app.html' %}
+
+{% block title %}Renovação #{{ renewal.pk }} — SCSI{% endblock %}
+{% block page_title %}Renovação #{{ renewal.pk }}{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="/">Início</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'insurance:renewal_list' %}">Renovações</a></li>
+    <li class="breadcrumb-item active">#{{ renewal.pk }}</li>
+{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'insurance:renewal_update' renewal.pk %}" class="btn btn-outline-primary btn-sm">Editar</a>
+{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h5 class="card-title mb-3">Dados da Renovação</h5>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <small class="text-muted d-block">Apólice Original</small>
+                        <a href="{{ renewal.policy.get_absolute_url }}">{{ renewal.policy.policy_number }}</a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <small class="text-muted d-block">Nova Apólice</small>
+                        {% if renewal.new_policy %}<a href="{{ renewal.new_policy.get_absolute_url }}">{{ renewal.new_policy.policy_number }}</a>{% else %}—{% endif %}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <small class="text-muted d-block">Status</small>
+                        <span class="badge {{ renewal.status|slugify }}">{{ renewal.get_status_display }}</span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <small class="text-muted d-block">Data de Vencimento</small>
+                        {{ renewal.due_date|date:"d/m/Y" }}
+                    </div>
+                </div>
+                {% if renewal.notes %}
+                <hr>
+                <h6>Observações</h6>
+                <p>{{ renewal.notes }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

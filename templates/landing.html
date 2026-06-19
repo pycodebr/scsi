@@ -1,0 +1,334 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}SCSI — Gestão Inteligente para Corretoras de Seguros{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Hero */
+.hero-section {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 40%, #3b82f6 100%);
+    color: #fff;
+    padding: 100px 0 80px;
+    position: relative;
+    overflow: hidden;
+}
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+.hero-section h1 {
+    font-size: 2.8rem;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: #93c5fc;
+}
+.hero-section p.lead {
+    font-size: 1.2rem;
+    color: #e2e8f0;
+    max-width: 540px;
+}
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.35);
+    border-radius: 999px;
+    padding: 6px 16px;
+    font-size: 0.85rem;
+    color: #f1f5f9;
+    margin-bottom: 24px;
+    backdrop-filter: blur(4px);
+}
+.hero-badge i { font-size: 14px; color: #34d399; }
+.cta-btn {
+    padding: 14px 36px;
+    font-size: 1.05rem;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+.cta-btn-light {
+    background: #3454d1;
+    color: #fff;
+    border: none;
+}
+.cta-btn-light:hover {
+    background: #2a44b8;
+    transform: translateY(-1px);
+}
+.cta-btn-outline {
+    background: transparent;
+    color: #fff;
+    border: 2px solid rgba(255,255,255,0.7);
+}
+.cta-btn-outline:hover {
+    background: rgba(255,255,255,0.15);
+    border-color: #fff;
+    transform: translateY(-1px);
+}
+
+/* Stats bar */
+.stats-bar {
+    background: #0f172a;
+    padding: 40px 0;
+}
+.stat-item { text-align: center; }
+.stat-item .stat-number { font-size: 2rem; font-weight: 800; color: #3b82f6; }
+.stat-item .stat-label { font-size: 0.85rem; color: #94a3b8; margin-top: 4px; }
+
+/* Features */
+.feature-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    transition: all 0.25s;
+    background: #fff;
+}
+.feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+    border-color: #3b82f6;
+}
+.feature-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 24px;
+}
+
+/* Plans */
+.plan-card {
+    border-radius: 16px;
+    transition: transform 0.2s;
+    border: 1px solid #e2e8f0;
+}
+.plan-card:hover { transform: translateY(-4px); }
+.plan-card.featured { border: 2px solid #3b82f6; position: relative; }
+.plan-card.featured::before {
+    content: 'Popular';
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #3b82f6;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 14px;
+    border-radius: 999px;
+}
+
+/* CTA bottom */
+.cta-section {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    color: #fff;
+}
+
+/* Footer */
+footer { padding: 40px 0; background: #0f172a; color: #64748b; }
+footer a { color: #94a3b8; text-decoration: none; }
+footer a:hover { color: #3b82f6; }
+</style>
+{% endblock %}
+
+{% block body_class %}bg-white{% endblock %}
+
+{% block body %}
+{# Navbar #}
+<nav class="navbar navbar-expand-lg navbar-dark" style="background:#0f172a;">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-white" href="/">
+            <span style="font-size:1.4rem;">SCSI</span>
+        </a>
+        <div class="d-flex gap-2">
+            <a href="{% url 'accounts:login' %}" class="btn btn-outline-light btn-sm">Entrar</a>
+            <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-sm">Criar conta grátis</a>
+        </div>
+    </div>
+</nav>
+
+{# Hero #}
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <div class="hero-badge">
+                    <i class="feather-zap"></i>
+                    Gestão inteligente para corretoras
+                </div>
+                <h1>Toda a operação da corretora,<br>em um só lugar.</h1>
+                <p class="lead mt-3 mb-4">CRM com Kanban, apólices, sinistros, comissões e IA — tudo integrado e seguro. Multi-tenant por design.</p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="{% url 'accounts:register' %}" class="btn cta-btn cta-btn-light">Começar grátis <i class="feather-arrow-right ms-1"></i></a>
+                    <a href="{% url 'accounts:login' %}" class="btn cta-btn cta-btn-outline">Já tenho conta</a>
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-block text-center">
+                <div style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:20px; padding:40px 30px; backdrop-filter:blur(8px);">
+                    <div class="d-flex align-items-center gap-3 mb-4" style="background:rgba(255,255,255,0.08); border-radius:12px; padding:14px 18px;">
+                        <div style="width:40px;height:40px;border-radius:10px;background:#3b82f6;display:flex;align-items:center;justify-content:center;"><i class="feather-trending-up text-white"></i></div>
+                        <div class="text-start"><small style="color:#94a3b8;">Prêmios mensais</small><br><strong>R$ 127.400</strong></div>
+                    </div>
+                    <div class="d-flex align-items-center gap-3 mb-4" style="background:rgba(255,255,255,0.08); border-radius:12px; padding:14px 18px;">
+                        <div style="width:40px;height:40px;border-radius:10px;background:#10b981;display:flex;align-items:center;justify-content:center;"><i class="feather-users text-white"></i></div>
+                        <div class="text-start"><small style="color:#94a3b8;">Clientes ativos</small><br><strong>1.284</strong></div>
+                    </div>
+                    <div class="d-flex align-items-center gap-3" style="background:rgba(255,255,255,0.08); border-radius:12px; padding:14px 18px;">
+                        <div style="width:40px;height:40px;border-radius:10px;background:#8b5cf6;display:flex;align-items:center;justify-content:center;"><i class="feather-cpu text-white"></i></div>
+                        <div class="text-start"><small style="color:#94a3b8;">Resumo IA</small><br><strong style="color:#c4b5fd;">Gerado em 3s</strong></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# Stats #}
+<section class="stats-bar">
+    <div class="container">
+        <div class="row">
+            <div class="col-6 col-md-3 stat-item"><div class="stat-number">1000+</div><div class="stat-label">Corretoras</div></div>
+            <div class="col-6 col-md-3 stat-item"><div class="stat-number">50k+</div><div class="stat-label">Apólices geridas</div></div>
+            <div class="col-6 col-md-3 stat-item"><div class="stat-number">99.9%</div><div class="stat-label">Uptime</div></div>
+            <div class="col-6 col-md-3 stat-item"><div class="stat-number">&lt;3s</div><div class="stat-label">Resumos IA</div></div>
+        </div>
+    </div>
+</section>
+
+{# Features #}
+<section class="py-5" style="background:#f8fafc;">
+    <div class="container">
+        <h2 class="text-center mb-2 fw-bold">Tudo que sua corretora precisa</h2>
+        <p class="text-center text-muted mb-5">De CRM a comissões, com inteligência artificial integrada.</p>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card feature-card shadow-sm p-4 text-center h-100">
+                    <div class="feature-icon" style="background:#eff6ff;color:#3b82f6;"><i class="feather-trello"></i></div>
+                    <h5 class="fw-bold">CRM com Kanban</h5>
+                    <p class="text-muted">Visualize o funil de vendas com drag-and-drop, acompanhe negociações e converta leads em apólices.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card feature-card shadow-sm p-4 text-center h-100">
+                    <div class="feature-icon" style="background:#f0fdf4;color:#10b981;"><i class="feather-shield"></i></div>
+                    <h5 class="fw-bold">Apólices e Renovações</h5>
+                    <p class="text-muted">Gestão completa de propostas, apólices, endossos e renovações com alertas automáticos de vencimento.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card feature-card shadow-sm p-4 text-center h-100">
+                    <div class="feature-icon" style="background:#fef3c7;color:#d97706;"><i class="feather-percent"></i></div>
+                    <h5 class="fw-bold">Comissões e Repasses</h5>
+                    <p class="text-muted">Controle de comissões recebidas e repasses para agentes e produtores, com cálculo automático.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card feature-card shadow-sm p-4 text-center h-100">
+                    <div class="feature-icon" style="background:#f5f3ff;color:#8b5cf6;"><i class="feather-cpu"></i></div>
+                    <h5 class="fw-bold">IA Integrada</h5>
+                    <p class="text-muted">Resumos automáticos de clientes, apólices e sinistros. Chat com IA que responde sobre sua carteira.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card feature-card shadow-sm p-4 text-center h-100">
+                    <div class="feature-icon" style="background:#fff7ed;color:#ea580c;"><i class="feather-bar-chart-2"></i></div>
+                    <h5 class="fw-bold">Dashboard e Relatórios</h5>
+                    <p class="text-muted">Visão 360° da operação com KPIs, funil de vendas e exportação em PDF e CSV.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card feature-card shadow-sm p-4 text-center h-100">
+                    <div class="feature-icon" style="background:#fef2f2;color:#ef4444;"><i class="feather-lock"></i></div>
+                    <h5 class="fw-bold">Multi-tenant Seguro</h5>
+                    <p class="text-muted">Cada corretora com dados isolados. Acesso por convite, roles e permissões granulares.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# Plans #}
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-2 fw-bold">Planos</h2>
+        <p class="text-center text-muted mb-5">Comece grátis, escale quando precisar.</p>
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-4">
+                <div class="card plan-card shadow-sm p-4 text-center featured">
+                    <h3 class="fw-bold mt-2">Gratuito</h3>
+                    <div class="display-5 fw-bold my-3">R$ 0<span class="text-muted fw-light fs-6">/mês</span></div>
+                    <ul class="list-unstyled mt-3 text-start">
+                        <li class="mb-2"><i class="feather-check text-success me-2"></i>Até 50 clientes</li>
+                        <li class="mb-2"><i class="feather-check text-success me-2"></i>1 usuário</li>
+                        <li class="mb-2"><i class="feather-check text-success me-2"></i>CRM Kanban</li>
+                        <li class="mb-2"><i class="feather-check text-success me-2"></i>Resumos IA</li>
+                        <li class="mb-2"><i class="feather-check text-success me-2"></i>Relatórios PDF/CSV</li>
+                    </ul>
+                    <a href="{% url 'accounts:register' %}" class="btn btn-primary w-100 mt-3 py-2">Começar grátis</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card plan-card shadow-sm p-4 text-center">
+                    <div class="badge bg-secondary mb-2">PRO</div>
+                    <h3 class="fw-bold mt-2 text-muted">Em breve</h3>
+                    <div class="display-5 fw-bold my-3 text-muted">—</div>
+                    <ul class="list-unstyled mt-3 text-start">
+                        <li class="mb-2 text-muted"><i class="feather-minus me-2"></i>Clientes ilimitados</li>
+                        <li class="mb-2 text-muted"><i class="feather-minus me-2"></i>Usuários ilimitados</li>
+                        <li class="mb-2 text-muted"><i class="feather-minus me-2"></i>Todos os recursos</li>
+                    </ul>
+                    <button class="btn btn-outline-secondary w-100 mt-3 py-2" disabled>Em breve</button>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card plan-card shadow-sm p-4 text-center">
+                    <div class="badge bg-secondary mb-2">BUSINESS</div>
+                    <h3 class="fw-bold mt-2 text-muted">Em breve</h3>
+                    <div class="display-5 fw-bold my-3 text-muted">—</div>
+                    <ul class="list-unstyled mt-3 text-start">
+                        <li class="mb-2 text-muted"><i class="feather-minus me-2"></i>API dedicada</li>
+                        <li class="mb-2 text-muted"><i class="feather-minus me-2"></i>Suporte prioritário</li>
+                        <li class="mb-2 text-muted"><i class="feather-minus me-2"></i>White-label</li>
+                    </ul>
+                    <button class="btn btn-outline-secondary w-100 mt-3 py-2" disabled>Em breve</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# CTA #}
+<section class="cta-section py-5 text-center">
+    <div class="container">
+        <h2 class="fw-bold" style="color:#93c5fc;">Pronto para transformar sua corretora?</h2>
+        <p class="mt-2" style="color:#e2e8f0;">Comece grátis, sem cartão de crédito.</p>
+        <a href="{% url 'accounts:register' %}" class="btn cta-btn cta-btn-light mt-3">Criar conta grátis <i class="feather-arrow-right ms-1"></i></a>
+    </div>
+</section>
+
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                <strong class="text-white">SCSI</strong> — Sistema de Gestão para Corretora de Seguros Inteligente
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                &copy; 2026 SCSI. Todos os direitos reservados.
+            </div>
+        </div>
+    </div>
+</footer>
+{% endblock %}

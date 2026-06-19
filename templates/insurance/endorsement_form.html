@@ -1,0 +1,65 @@
+{% extends 'base_app.html' %}
+
+{% block title %}{{ form.instance.pk|yesno:"Editar Endosso|Novo Endosso" }} — SCSI{% endblock %}
+{% block page_title %}{{ form.instance.pk|yesno:"Editar Endosso|Novo Endosso" }}{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="/">Início</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'insurance:endorsement_list' %}">Endossos</a></li>
+    <li class="breadcrumb-item active">{{ form.instance.pk|yesno:"Editar|Novo" }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Apólice *</label>
+                    {{ form.policy }}
+                    {{ form.policy.errors }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Nº Endosso *</label>
+                    {{ form.endorsement_number }}
+                    {{ form.endorsement_number.errors }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Tipo *</label>
+                    {{ form.type }}
+                    {{ form.type.errors }}
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Variação de Prêmio</label>
+                    {{ form.premium_change }}
+                    {{ form.premium_change.errors }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Data de Vigência *</label>
+                    {{ form.effective_date }}
+                    {{ form.effective_date.errors }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Status</label>
+                    {{ form.status }}
+                    {{ form.status.errors }}
+                </div>
+            </div>
+
+            <div class="col-12 mt-3">
+                <label class="form-label">Descrição</label>
+                {{ form.description }}
+                {{ form.description.errors }}
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{% url 'insurance:endorsement_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary">Salvar</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

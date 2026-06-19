@@ -1,0 +1,34 @@
+{% extends 'base_app.html' %}
+
+{% block title %}Relatórios — SCSI{% endblock %}
+{% block page_title %}Relatórios{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="/">Início</a></li>
+    <li class="breadcrumb-item active">Relatórios</li>
+{% endblock %}
+
+{% block content %}
+<div class="row g-3">
+    {% for rt in report_types %}
+    <div class="col-md-4 col-lg-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <h6 class="card-title">{{ rt.label }}</h6>
+                <form method="get" action="{% url 'reports:report_export' report_type=rt.key %}" class="d-flex gap-2 flex-wrap">
+                    <input type="date" name="date_from" class="form-control form-control-sm" placeholder="De">
+                    <input type="date" name="date_to" class="form-control form-control-sm" placeholder="Até">
+                    <select name="status" class="form-select form-select-sm">
+                        <option value="">Todos os status</option>
+                    </select>
+                    <div class="d-flex gap-1 mt-1">
+                        <button type="submit" name="format" value="pdf" class="btn btn-primary btn-sm">PDF</button>
+                        <button type="submit" name="format" value="csv" class="btn btn-outline-primary btn-sm">CSV</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

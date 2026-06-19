@@ -1,0 +1,7 @@
+from django.apps import AppConfig
+
+
+class CommissionsConfig(AppConfig):
+    name = 'commissions'
+    default_auto_field = 'django.db.models.BigAutoField'
+    verbose_name = 'Comissões'

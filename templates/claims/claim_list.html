@@ -1,0 +1,77 @@
+{% extends 'base_app.html' %}
+{% load brl_tags %}
+
+{% block title %}Sinistros — SCSI{% endblock %}
+{% block page_title %}Sinistros{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="/">Início</a></li>
+    <li class="breadcrumb-item active">Sinistros</li>
+{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'claims:claim_create' %}" class="btn btn-primary btn-sm">Novo sinistro</a>
+{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">Status</label>
+                {{ search_form.status }}
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Data de</label>
+                {{ search_form.date_from }}
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Data até</label>
+                {{ search_form.date_to }}
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-search"></i> Filtrar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if claims %}
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Nº Sinistro</th>
+                        <th>Apólice</th>
+                        <th>Item Coberto</th>
+                        <th>Ocorrência</th>
+                        <th>Valor Reclamado</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for claim in claims %}
+                    <tr>
+                        <td><a href="{{ claim.get_absolute_url }}">{{ claim.claim_number }}</a></td>
+                        <td>{{ claim.policy.policy_number|default:"—" }}</td>
+                        <td>{{ claim.covered_item.description|default:"—" }}</td>
+                        <td>{{ claim.occurrence_date|date:"d/m/Y" }}</td>
+                        <td>{{ claim.claimed_amount|brl }}</td>
+                        <td><span class="badge {{ claim.status|slugify }}">{{ claim.get_status_display }}</span></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% include "partials/_pagination.html" %}
+{% else %}
+<div class="alert alert-info">Nenhum sinistro cadastrado.</div>
+{% endif %}
+{% endblock %}

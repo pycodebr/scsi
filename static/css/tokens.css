@@ -1,0 +1,52 @@
+/*
+ * SCSI — Design Tokens
+ * Extraídos da fonte de verdade visual: design_system/design-system.html
+ * (tema Duralux / Bootstrap 5). NÃO inventar valores fora desta paleta.
+ * Ver PRD seção 38.
+ */
+
+:root {
+    /* --- Cores de marca --- */
+    --scsi-primary: #3454d1;
+    --scsi-secondary: #64748b;
+    --scsi-success: #17c666;
+    --scsi-danger: #ea4d4d;
+    --scsi-warning: #ffa21d;
+    --scsi-info: #3dc7be;
+    --scsi-light: #eff0f6;
+    --scsi-dark: #283c50;
+    --scsi-darken: #001327;
+
+    /* --- Superfícies e texto --- */
+    --scsi-body-bg: #f0f2f8;
+    --scsi-body-color: #4b5563;
+    --scsi-border-color: #e5e7eb;
+    --scsi-surface: #ffffff;
+
+    /* --- Tipografia --- */
+    --scsi-font-sans: system-ui, -apple-system, "Segoe UI", Roboto,
+        "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+    /* --- Raios --- */
+    --scsi-radius-sm: 2px;
+    --scsi-radius: 4px;
+    --scsi-radius-lg: 6px;
+    --scsi-radius-xl: 1rem;
+    --scsi-radius-pill: 50rem;
+
+    /* --- Espaçamentos (escala base 0.25rem) --- */
+    --scsi-space-1: 0.25rem;
+    --scsi-space-2: 0.5rem;
+    --scsi-space-3: 1rem;
+    --scsi-space-4: 1.5rem;
+    --scsi-space-5: 3rem;
+
+    /* --- Sombra --- */
+    --scsi-shadow: 0 0 25px rgba(0, 0, 0, 0.06);
+}
+
+/* --- Table responsive: prevents last-row cutoff in cards --- */
+.card-body.p-0 > .table-responsive {
+    padding-bottom: 0.5rem;
+}

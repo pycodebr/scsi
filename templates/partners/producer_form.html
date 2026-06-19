@@ -1,0 +1,72 @@
+{% extends 'base_app.html' %}
+
+{% block title %}{{ form.instance.pk|yesno:"Editar Produtor|Novo Produtor" }} — SCSI{% endblock %}
+{% block page_title %}{{ form.instance.pk|yesno:"Editar Produtor|Novo Produtor" }}{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="/">Início</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'partners:producer_list' %}">Produtores</a></li>
+    <li class="breadcrumb-item active">{{ form.instance.pk|yesno:"Editar|Novo" }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        <form method="post">
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Tipo *</label>
+                    {{ form.entity_type }}
+                    {{ form.entity_type.errors }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Nome *</label>
+                    {{ form.name }}
+                    {{ form.name.errors }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">CPF/CNPJ *</label>
+                    {{ form.document }}
+                    {{ form.document.errors }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Agente (opcional)</label>
+                    {{ form.agent }}
+                    {{ form.agent.errors }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">E-mail</label>
+                    {{ form.email }}
+                    {{ form.email.errors }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Telefone</label>
+                    {{ form.phone }}
+                    {{ form.phone.errors }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Comissão padrão (%)</label>
+                    {{ form.default_commission_rate }}
+                    {{ form.default_commission_rate.errors }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Usuário vinculado</label>
+                    {{ form.user }}
+                    {{ form.user.errors }}
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <div class="form-check">
+                        {{ form.is_active }}
+                        <label class="form-check-label ms-2" for="id_is_active">Ativo</label>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{% url 'partners:producer_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary">Salvar</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

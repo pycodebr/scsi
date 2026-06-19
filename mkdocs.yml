@@ -1,0 +1,39 @@
+site_name: SCSI Docs
+theme:
+  name: material
+  language: pt-BR
+  palette:
+    primary: indigo
+    accent: indigo
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+markdown_extensions:
+  - admonition
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - toc:
+      permalink: true
+nav:
+  - Início: index.md
+  - Arquitetura: architecture.md
+  - Multi Tenant: multi-tenant.md
+  - Modelo de Domínio: domain-model.md
+  - Permissões: permissions.md
+  - Arquivos Protegidos: protected-media.md
+  - Agentes de IA: ai-agents.md
+  - Celery e Tasks: celery-tasks.md
+  - Variáveis de Ambiente: env-vars.md
+  - Desenvolvimento Local: local-dev.md
+  - Deploy: deploy.md
+  - Backup e Restore: backup.md
+  - Runbook: runbook.md

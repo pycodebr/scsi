@@ -1,0 +1,91 @@
+{% load i18n %}
+<div id="ai-summary-block" class="mt-4" data-entity-type="{{ entity_type }}" data-entity-pk="{{ object.pk }}">
+    <h6 class="border-bottom pb-2 mb-3">
+        <i class="feather-cpu me-1"></i> Resumo IA
+    </h6>
+
+    {% if object.ai_summary_status == 'processing' %}
+    <div class="alert alert-warning d-flex align-items-center" role="alert">
+        <div class="spinner-border spinner-border-sm me-2" role="status">
+            <span class="visually-hidden">Carregando...</span>
+        </div>
+        Gerando resumo... Voc&ecirc; ser&aacute; notificado quando estiver pronto.
+    </div>
+    {% elif object.ai_summary_status == 'error' %}
+    <div class="alert alert-danger" role="alert">
+        Ocorreu um erro ao gerar o resumo.
+        <button class="btn btn-sm btn-outline-danger ms-2" onclick="triggerAiSummary('{{ entity_type }}', {{ object.pk }})">
+            Tentar novamente
+        </button>
+    </div>
+    {% elif object.ai_summary %}
+    <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f5f3ff, #ede9fe); border-left: 4px solid #8b5cf6;">
+        <div class="card-body p-4" id="ai-summary-content">{{ object.ai_summary }}</div>
+    </div>
+    {% if object.ai_summary_updated_at %}
+    <small class="text-muted">Atualizado em: {{ object.ai_summary_updated_at|date:"d/m/Y H:i" }}</small>
+    {% endif %}
+    <button class="btn btn-sm btn-outline-primary ms-2" onclick="triggerAiSummary('{{ entity_type }}', {{ object.pk }})">
+        <i class="feather-refresh-cw me-1"></i> Atualizar resumo
+    </button>
+    {% else %}
+    <button class="btn btn-outline-primary btn-sm" onclick="triggerAiSummary('{{ entity_type }}', {{ object.pk }})">
+        <i class="feather-cpu me-1"></i> Resumir com IA
+    </button>
+    {% endif %}
+</div>
+
+<script>
+(function() {
+    var el = document.getElementById('ai-summary-content');
+    if (!el) return;
+    var text = el.textContent || el.innerText || '';
+    el.innerHTML = renderAiMarkdown(text);
+
+    function renderAiMarkdown(text) {
+        return text
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.+?)\*/g, '<em>$1</em>')
+            .replace(/^### (.+)$/gm, '<h6 class="mt-2 mb-1">$1</h6>')
+            .replace(/^## (.+)$/gm, '<h5 class="mt-2 mb-1">$1</h5>')
+            .replace(/^# (.+)$/gm, '<h5 class="mt-2 mb-1">$1</h5>')
+            .replace(/^- (.+)$/gm, '<li>$1</li>')
+            .replace(/\n/g, '<br>');
+    }
+})();
+
+function triggerAiSummary(entityType, pk) {
+    var btn = event.target.closest('button');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Gerando...';
+    }
+    fetch('/ai/generate/' + entityType + '/' + pk + '/', {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]') ? document.querySelector('[name=csrfmiddlewaretoken]').value : (document.cookie.match(/csrftoken=([^;]+)/) || ['', ''])[1],
+        },
+        credentials: 'same-origin'
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
+        if (data.status === 'processing') {
+            var block = document.getElementById('ai-summary-block');
+            if (block) {
+                block.innerHTML = '<h6 class="border-bottom pb-2 mb-3"><i class="feather-cpu me-1"></i> Resumo IA</h6>' +
+                    '<div class="alert alert-warning d-flex align-items-center" role="alert">' +
+                    '<div class="spinner-border spinner-border-sm me-2" role="status"><span class="visually-hidden">Carregando...</span></div>' +
+                    'Gerando resumo... Voc&ecirc; ser&aacute; notificado quando estiver pronto.</div>';
+            }
+        }
+    })
+    .catch(function(err) {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="feather-cpu me-1"></i> Resumir com IA';
+        }
+    });
+}
+</script>

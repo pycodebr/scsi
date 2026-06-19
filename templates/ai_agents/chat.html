@@ -1,0 +1,392 @@
+{% extends 'base_app.html' %}
+
+{% block title %}Chat IA — SCSI{% endblock %}
+{% block page_title %}Chat IA{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="/">Início</a></li>
+    <li class="breadcrumb-item active">Chat IA</li>
+{% endblock %}
+
+{% block content %}
+<style>
+.chat-wrap { height: calc(100vh - 210px); min-height: 420px; }
+.chat-wrap > .col-md-3,
+.chat-wrap > .col-md-9 { height: 100%; }
+.chat-sidebar {
+    background: var(--nxl-card-bg, #fff);
+    border-right: 1px solid var(--nxl-border-color, #e2e8f0);
+    display: flex; flex-direction: column; overflow: hidden;
+}
+.chat-sidebar-head { padding: 16px; border-bottom: 1px solid var(--nxl-border-color, #e2e8f0); flex-shrink: 0; }
+.chat-session-list { flex: 1; overflow-y: auto; min-height: 0; padding: 8px; }
+.chat-session-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 12px; border-radius: 8px; color: #334155;
+    text-decoration: none; transition: all 0.15s; font-size: 0.875rem;
+    margin-bottom: 2px; position: relative; cursor: pointer;
+}
+.chat-session-item:hover { background: rgba(59,130,246,0.06); }
+.chat-session-item.active {
+    background: linear-gradient(135deg, #3b82f6, #6366f1);
+    color: #fff; font-weight: 500;
+}
+.chat-session-item.active .sess-actions > button { color: rgba(255,255,255,0.7); }
+.chat-session-item.active .sess-actions > button:hover { color: #fff; }
+.sess-actions { display: flex; gap: 2px; position: relative; }
+.sess-actions button {
+    background: none; border: none; padding: 2px 4px; cursor: pointer;
+    color: #94a3b8; border-radius: 4px; font-size: 12px;
+}
+.sess-actions button:hover { color: #3b82f6; background: rgba(59,130,246,0.1); }
+.sess-actions .dropdown-menu {
+    display: none !important;
+    position: absolute !important;
+    right: 0 !important;
+    top: 100% !important;
+    left: auto !important;
+}
+.sess-actions .dropdown-menu.open {
+    display: block !important;
+}
+.chat-main { display: flex; flex-direction: column; background: #f8fafc; overflow: hidden; }
+.chat-messages {
+    flex: 1; min-height: 0; overflow-y: auto; padding: 20px 24px;
+    display: flex; flex-direction: column; gap: 12px;
+}
+.chat-empty {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    flex-direction: column; color: #94a3b8;
+}
+.chat-empty i { font-size: 56px; opacity: 0.25; }
+.chat-empty p { margin-top: 12px; }
+
+.msg-row { display: flex; align-items: flex-end; gap: 10px; }
+.msg-row.user { justify-content: flex-end; }
+.msg-row.assistant { justify-content: flex-start; }
+.msg-avatar {
+    width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; font-weight: 700;
+}
+.msg-row.user .msg-avatar { background: #3b82f6; color: #fff; order: 2; }
+.msg-row.assistant .msg-avatar { background: linear-gradient(135deg, #3b82f6, #6366f1); color: #fff; }
+.msg-bubble {
+    max-width: 70%; padding: 12px 16px; font-size: 0.9rem;
+    word-wrap: break-word; white-space: pre-wrap; line-height: 1.6;
+}
+.msg-row.user .msg-bubble {
+    background: linear-gradient(135deg, #3b82f6, #6366f1); color: #fff;
+    border-radius: 16px 16px 4px 16px;
+}
+.msg-row.assistant .msg-bubble {
+    background: #fff; color: #1e293b; border: 1px solid #e2e8f0;
+    border-radius: 16px 16px 16px 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.msg-bubble h5, .msg-bubble h6 { margin: 8px 0 4px; }
+.msg-bubble li { margin-left: 16px; }
+
+.chat-input-bar {
+    flex-shrink: 0; padding: 16px 24px; background: #fff;
+    border-top: 1px solid var(--nxl-border-color, #e2e8f0);
+}
+.chat-input-wrap {
+    display: flex; align-items: center; gap: 8px;
+    background: #f1f5f9; border-radius: 24px; padding: 4px 4px 4px 16px;
+    border: 1px solid #e2e8f0; transition: border-color 0.2s, box-shadow 0.2s;
+}
+.chat-input-wrap:focus-within {
+    border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+}
+.chat-input-wrap input {
+    flex: 1; border: none; background: transparent; outline: none;
+    font-size: 0.9rem; color: #1e293b; padding: 8px 0;
+}
+.chat-input-wrap input::placeholder { color: #94a3b8; }
+.btn-send {
+    width: 40px; height: 40px; border-radius: 50%; border: none;
+    background: linear-gradient(135deg, #3b82f6, #6366f1); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: transform 0.15s, opacity 0.15s;
+    flex-shrink: 0;
+}
+.btn-send:hover { transform: scale(1.05); }
+.btn-send:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.typing-indicator { display: inline-flex; gap: 4px; padding: 4px 0; }
+.typing-indicator span {
+    width: 6px; height: 6px; border-radius: 50%; background: #94a3b8;
+    animation: typingBounce 1.2s infinite;
+}
+.typing-indicator span:nth-child(2) { animation-delay: 0.15s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes typingBounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-6px); opacity: 1; }
+}
+</style>
+
+<div class="row g-0 chat-wrap rounded overflow-hidden border" style="background:#fff;">
+    {# Sidebar — sessões #}
+    <div class="col-md-3 chat-sidebar">
+        <div class="chat-sidebar-head">
+            <button class="btn btn-primary w-100" id="btn-new-session" onclick="createSession()">
+                <i class="feather-plus me-1"></i> Nova conversa
+            </button>
+        </div>
+        <div id="session-list" class="chat-session-list">
+            {% for session in sessions %}
+            <div class="chat-session-item {% if active_session and active_session.pk == session.pk %}active{% endif %}"
+                 data-session-id="{{ session.pk }}" onclick="navigateSession({{ session.pk }})">
+                <span class="text-truncate" style="max-width: 130px;">{{ session.title }}</span>
+                <div class="sess-actions">
+                    <button type="button" onclick="event.stopPropagation(); toggleSessionMenu({{ session.pk }})" title="Opções">
+                        <i class="feather-more-vertical"></i>
+                    </button>
+                    <div class="dropdown-menu sess-menu-{{ session.pk }}">
+                        <a class="dropdown-item" href="javascript:void(0)" onclick="event.stopPropagation(); renameSession({{ session.pk }}, '{{ session.title|escapejs }}')"><i class="feather-edit-2 me-1"></i>Renomear</a>
+                        <a class="dropdown-item" href="{% url 'ai_agents:chat_session_export' session.pk %}" onclick="event.stopPropagation();"><i class="feather-download me-1"></i>Exportar Markdown</a>
+                        <a class="dropdown-item text-danger" href="javascript:void(0)" onclick="event.stopPropagation(); deleteSession({{ session.pk }})"><i class="feather-trash-2 me-1"></i>Excluir</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {# Chat area #}
+    <div class="col-md-9 chat-main">
+        {% if active_session %}
+        <div class="d-flex align-items-center gap-2 px-4 py-2 border-bottom" style="background:#fff;">
+            <i class="feather-message-circle text-primary"></i>
+            <span class="fw-semibold small">{{ active_session.title }}</span>
+            <span class="badge bg-light text-secondary ms-auto">{{ chat_messages|length }} msgs</span>
+        </div>
+
+        <div id="chat-messages" class="chat-messages">
+            {% for msg in chat_messages %}
+            <div class="msg-row {{ msg.role }}">
+                {% if msg.role == 'assistant' %}
+                <div class="msg-avatar"><i class="feather-cpu" style="font-size:14px;"></i></div>
+                {% endif %}
+                <div class="msg-bubble"></div>
+                {% if msg.role == 'user' %}
+                <div class="msg-avatar">{{ request.user.first_name|default:request.user.email|slice:":2"|upper }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if active_session %}
+        <script id="chat-messages-data" type="application/json">[
+            {% for msg in chat_messages %}{"role": "{{ msg.role }}", "content": "{{ msg.content|escapejs }}"}{% if not forloop.last %},{% endif %}{% endfor %}
+        ]</script>
+        {% endif %}
+
+        <div class="chat-input-bar">
+            <form id="chat-form" class="chat-input-wrap" onsubmit="sendChatMessage(event)">
+                <input type="text" id="chat-input" placeholder="Pergunte sobre sua carteira, apólices, sinistros..." autocomplete="off" required>
+                <button type="submit" class="btn-send" id="btn-send"><i class="feather-send" style="font-size:16px;"></i></button>
+            </form>
+        </div>
+        {% else %}
+        <div class="chat-empty">
+            <i class="feather-message-circle"></i>
+            <p>Selecione ou crie uma conversa para começar.</p>
+            <button class="btn btn-primary mt-3" onclick="createSession()">
+                <i class="feather-plus me-1"></i> Nova conversa
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const sessionId = {{ active_session.pk|default:'null' }};
+const csrfToken = document.cookie.match(/csrftoken=([^;]+)/) ? document.cookie.match(/csrftoken=([^;]+)/)[1] : '';
+const userInitials = '{{ request.user.first_name|default:request.user.email|slice:":2"|upper }}';
+
+function scrollChatToBottom() {
+    const el = document.getElementById('chat-messages');
+    if (el) el.scrollTop = el.scrollHeight;
+}
+
+function navigateSession(pk) {
+    window.location.href = '/ai/chat/' + pk + '/';
+}
+
+function toggleSessionMenu(pk) {
+    var menu = document.querySelector('.sess-menu-' + pk);
+    if (!menu) return;
+    var wasOpen = menu.classList.contains('open');
+    document.querySelectorAll('[class*="sess-menu-"]').forEach(function(m) { m.classList.remove('open'); });
+    if (!wasOpen) menu.classList.add('open');
+}
+
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.sess-actions')) {
+        document.querySelectorAll('[class*="sess-menu-"]').forEach(function(m) { m.classList.remove('open'); });
+    }
+});
+
+function createSession() {
+    fetch('{% url "ai_agents:chat_session_create" %}', {
+        method: 'POST',
+        headers: {'X-CSRFToken': csrfToken, 'Content-Type': 'application/x-www-form-urlencoded'},
+        credentials: 'same-origin',
+        body: 'title=Nova conversa'
+    })
+    .then(function(r) { if (!r.ok) throw new Error('Erro'); return r.json(); })
+    .then(function(data) { window.location.href = data.url; })
+    .catch(function() { alert('Erro ao criar conversa.'); });
+}
+
+function renameSession(pk, currentTitle) {
+    var newTitle = prompt('Novo nome:', currentTitle);
+    if (!newTitle) return;
+    fetch('/ai/chat/' + pk + '/rename/', {
+        method: 'POST',
+        headers: {'X-CSRFToken': csrfToken, 'Content-Type': 'application/x-www-form-urlencoded'},
+        credentials: 'same-origin',
+        body: 'title=' + encodeURIComponent(newTitle)
+    }).then(function(r) { if (!r.ok) throw new Error('Erro'); return r.json(); })
+      .then(function() { location.reload(); })
+      .catch(function() { alert('Erro ao renomear.'); });
+}
+
+function deleteSession(pk) {
+    if (!confirm('Excluir esta conversa?')) return;
+    fetch('/ai/chat/' + pk + '/delete/', {
+        method: 'POST',
+        headers: {'X-CSRFToken': csrfToken},
+        credentials: 'same-origin',
+    }).then(function(r) { if (!r.ok) throw new Error('Erro'); return r.json(); })
+      .then(function() { window.location.href = '{% url "ai_agents:chat" %}'; })
+      .catch(function() { alert('Erro ao excluir.'); });
+}
+
+function renderMarkdown(text) {
+    return text
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
+        .replace(/^### (.+)$/gm, '<h6 class="mt-2 mb-1">$1</h6>')
+        .replace(/^## (.+)$/gm, '<h5 class="mt-2 mb-1">$1</h5>')
+        .replace(/^# (.+)$/gm, '<h5 class="mt-2 mb-1">$1</h5>')
+        .replace(/^- (.+)$/gm, '<li>$1</li>')
+        .replace(/\n/g, '<br>');
+}
+
+function appendMessage(role, content) {
+    var chatMsgs = document.getElementById('chat-messages');
+    if (!chatMsgs) return;
+
+    var row = document.createElement('div');
+    row.className = 'msg-row ' + role;
+
+    if (role === 'assistant') {
+        row.innerHTML = '<div class="msg-avatar"><i class="feather-cpu" style="font-size:14px;"></i></div>' +
+                        '<div class="msg-bubble">' + content + '</div>';
+    } else {
+        row.innerHTML = '<div class="msg-bubble">' + content + '</div>' +
+                        '<div class="msg-avatar">' + userInitials + '</div>';
+    }
+    chatMsgs.appendChild(row);
+    scrollChatToBottom();
+    return row;
+}
+
+function sendChatMessage(e) {
+    e.preventDefault();
+    var input = document.getElementById('chat-input');
+    var sendBtn = document.getElementById('btn-send');
+    var message = input.value.trim();
+    if (!message || !sessionId) return;
+    input.value = '';
+    sendBtn.disabled = true;
+
+    appendMessage('user', message.replace(/</g, '&lt;').replace(/>/g, '&gt;'));
+
+    var aiRow = appendMessage('assistant',
+        '<div class="typing-indicator"><span></span><span></span><span></span></div>' +
+        '<span class="ms-2 small text-muted">Pensando...</span>'
+    );
+    aiRow.querySelector('.msg-bubble').id = 'ai-response';
+    scrollChatToBottom();
+
+    var responseEl = document.getElementById('ai-response');
+    var fullText = '';
+
+    fetch('/ai/chat/' + sessionId + '/send/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({message: message})
+    }).then(function(response) {
+        if (!response.ok) throw new Error('Erro na resposta');
+        var reader = response.body.getReader();
+        var decoder = new TextDecoder();
+
+        function read() {
+            reader.read().then(function(result) {
+                if (result.done) {
+                    responseEl.innerHTML = renderMarkdown(fullText);
+                    sendBtn.disabled = false;
+                    scrollChatToBottom();
+                    return;
+                }
+                var text = decoder.decode(result.value);
+                var lines = text.split('\n');
+                for (var i = 0; i < lines.length; i++) {
+                    if (lines[i].indexOf('data: ') === 0) {
+                        try {
+                            var data = JSON.parse(lines[i].slice(6));
+                            if (data.chunk) {
+                                fullText += data.chunk;
+                                responseEl.innerHTML = renderMarkdown(fullText);
+                            } else if (data.error) {
+                                responseEl.innerHTML = '<span class="text-danger"><i class="feather-alert-circle me-1"></i>Erro: ' + data.error + '</span>';
+                                sendBtn.disabled = false;
+                            } else if (data.done) {
+                                responseEl.innerHTML = renderMarkdown(fullText);
+                            }
+                        } catch(e) {}
+                    }
+                }
+                scrollChatToBottom();
+                read();
+            });
+        }
+        read();
+    }).catch(function() {
+        responseEl.innerHTML = '<span class="text-danger"><i class="feather-alert-circle me-1"></i>Erro ao enviar mensagem. Tente novamente.</span>';
+        sendBtn.disabled = false;
+    });
+}
+
+(function() {
+    var dataEl = document.getElementById('chat-messages-data');
+    if (!dataEl) return;
+    var messages = JSON.parse(dataEl.textContent);
+    var rows = document.querySelectorAll('#chat-messages .msg-row');
+    messages.forEach(function(msg, i) {
+        var bubble = rows[i] ? rows[i].querySelector('.msg-bubble') : null;
+        if (!bubble) return;
+        if (msg.role === 'assistant') {
+            bubble.innerHTML = renderMarkdown(msg.content);
+        } else {
+            bubble.textContent = msg.content;
+        }
+    });
+})();
+
+scrollChatToBottom();
+</script>
+{% endblock %}

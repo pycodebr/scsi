@@ -1,0 +1,88 @@
+{% extends 'base_app.html' %}
+{% load brl_tags %}
+
+{% block title %}Meu Plano — SCSI{% endblock %}
+{% block page_title %}Meu Plano{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="/">Início</a></li>
+    <li class="breadcrumb-item active">Meu Plano</li>
+{% endblock %}
+
+{% block content %}
+{% if not brokerage %}
+<div class="text-center py-5">
+    <h4>Você ainda não tem uma corretora</h4>
+    <p class="text-muted">Crie sua corretora para começar a usar o sistema.</p>
+    <a href="{% url 'tenants:onboarding' %}" class="btn btn-primary">Cadastrar corretora</a>
+</div>
+{% else %}
+<div class="row justify-content-center">
+    {% if subscription %}
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">{{ subscription.plan.name }}</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Corretora:</strong> {{ brokerage }}</p>
+                <p><strong>status:</strong>
+                    {% if subscription.status == 'active' %}
+                    <span class="badge bg-success">Ativa</span>
+                    {% else %}
+                    <span class="badge bg-warning">{{ subscription.get_status_display }}</span>
+                    {% endif %}
+                </p>
+                {% if subscription.plan.max_users %}
+                <p><strong>Máx. usuários:</strong> {{ subscription.plan.max_users }}</p>
+                {% endif %}
+                {% if subscription.plan.max_clients %}
+                <p><strong>Máx. clientes:</strong> {{ subscription.plan.max_clients }}</p>
+                {% endif %}
+                {% if subscription.plan.max_policies %}
+                <p><strong>Máx. apólices:</strong> {{ subscription.plan.max_policies }}</p>
+                {% endif %}
+                {% if subscription.plan.features %}
+                <p><strong>Funcionalidades:</strong></p>
+                <ul>
+                    {% for feature in subscription.plan.features %}
+                    <li>{{ feature }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if plans %}
+    <div class="col-12 mt-4">
+        <h5>Outros planos</h5>
+        <div class="row">
+            {% for plan in plans %}
+            {% if plan.slug != subscription.plan.slug %}
+            <div class="col-12 col-md-4 mb-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <h5>{{ plan.name }}</h5>
+                        {% if plan.price == 0 %}
+                        <p class="text-muted">Grátis</p>
+                        {% else %}
+                        <p class="text-muted">{{ plan.price|brl }}/mês</p>
+                        {% endif %}
+                        {% if not plan.is_available %}
+                        <span class="badge bg-secondary">Em breve</span>
+                        {% else %}
+                        <a href="#" class="btn btn-outline-primary btn-sm disabled">Atualizar</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

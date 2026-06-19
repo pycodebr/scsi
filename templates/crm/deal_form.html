@@ -1,0 +1,91 @@
+{% extends 'base_app.html' %}
+
+{% block title %}{{ form.instance.pk|yesno:"Editar Negociação|Nova Negociação" }} — CRM{% endblock %}
+{% block page_title %}{{ form.instance.pk|yesno:"Editar Negociação|Nova Negociação" }}{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="/">Início</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'crm:deal_list' %}">Negociações</a></li>
+    <li class="breadcrumb-item active">{{ form.instance.pk|yesno:"Editar|Nova" }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        <form method="post">
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Título *</label>
+                    {{ form.title }}
+                    {{ form.title.errors }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Pipeline *</label>
+                    {{ form.pipeline }}
+                    {{ form.pipeline.errors }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Etapa *</label>
+                    {{ form.stage }}
+                    {{ form.stage.errors }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Cliente</label>
+                    {{ form.client }}
+                    {{ form.client.errors }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Produtor</label>
+                    {{ form.producer }}
+                    {{ form.producer.errors }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Agente</label>
+                    {{ form.agent }}
+                    {{ form.agent.errors }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Valor Estimado</label>
+                    {{ form.estimated_value }}
+                    {{ form.estimated_value.errors }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Ramo</label>
+                    {{ form.line_of_business }}
+                    {{ form.line_of_business.errors }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Seguradora</label>
+                    {{ form.insurer }}
+                    {{ form.insurer.errors }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Proposta</label>
+                    {{ form.proposal }}
+                    {{ form.proposal.errors }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Status</label>
+                    {{ form.status }}
+                    {{ form.status.errors }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Previsão fechamento</label>
+                    {{ form.expected_close_date }}
+                    {{ form.expected_close_date.errors }}
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Descrição</label>
+                    {{ form.description }}
+                    {{ form.description.errors }}
+                </div>
+            </div>
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{% url 'crm:deal_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary">Salvar</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

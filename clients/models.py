@@ -1,55 +1,70 @@
 from django.db import models
 
+from base.models import TenantAwareModel
 
-class Client(models.Model):
-    CLIENT_TYPE_CHOICES = [
-        ('individual', 'Pessoa Física'),
-        ('company', 'Pessoa Jurídica'),
-    ]
 
-    brokerage = models.ForeignKey(
-        'brokerages.Brokerage',
-        on_delete=models.CASCADE,
-        related_name='clients',
-        verbose_name='Corretora',
+class Client(TenantAwareModel):
+    """Cliente PF ou PJ da corretora — isolado por tenant.
+
+    Campos conforme seção 14.5 do PRD:
+    ``person_type`` (PF/PJ), ``name``, ``document`` (CPF/CNPJ com unicidade
+    por tenant), endereço, contato, e ``ai_summary`` + status para resumo IA.
+    """
+
+    class PersonType(models.TextChoices):
+        PF = 'PF', 'Pessoa Física'
+        PJ = 'PJ', 'Pessoa Jurídica'
+
+    class AiSummaryStatus(models.TextChoices):
+        IDLE = 'idle', 'Idle'
+        PROCESSING = 'processing', 'Processando'
+        DONE = 'done', 'Concluído'
+        ERROR = 'error', 'Erro'
+
+    person_type = models.CharField(
+        'tipo de pessoa',
+        max_length=2,
+        choices=PersonType.choices,
+        default=PersonType.PF,
     )
-    client_type = models.CharField(
-        'Tipo',
-        max_length=20,
-        choices=CLIENT_TYPE_CHOICES,
-        default='individual',
+    name = models.CharField('nome / razão social', max_length=200)
+    trade_name = models.CharField('nome fantasia', max_length=200, blank=True)
+    document = models.CharField('CPF / CNPJ', max_length=18, db_index=True)
+    email = models.EmailField('e-mail', blank=True)
+    phone = models.CharField('telefone', max_length=30, blank=True)
+    birth_date = models.DateField('data de nascimento', null=True, blank=True)
+
+    address_street = models.CharField('logradouro', max_length=200, blank=True)
+    address_number = models.CharField('número', max_length=20, blank=True)
+    address_complement = models.CharField('complemento', max_length=100, blank=True)
+    address_neighborhood = models.CharField('bairro', max_length=100, blank=True)
+    address_city = models.CharField('cidade', max_length=100, blank=True)
+    address_state = models.CharField('UF', max_length=2, blank=True)
+    address_zip = models.CharField('CEP', max_length=10, blank=True)
+
+    notes = models.TextField('observações', blank=True)
+
+    ai_summary = models.TextField('resumo IA', blank=True, default='')
+    ai_summary_status = models.CharField(
+        'status resumo IA',
+        max_length=12,
+        choices=AiSummaryStatus.choices,
+        default=AiSummaryStatus.IDLE,
     )
-    name = models.CharField('Nome / Razão Social', max_length=255)
-    cpf_cnpj = models.CharField('CPF / CNPJ', max_length=18)
-    email = models.EmailField('Email', blank=True, default='')
-    phone = models.CharField('Telefone', max_length=20, blank=True, default='')
-    secondary_phone = models.CharField(
-        'Telefone Secundário', max_length=20, blank=True, default=''
-    )
-    birth_date = models.DateField(
-        'Data de Nascimento', null=True, blank=True
-    )
-    address = models.CharField('Endereço', max_length=500, blank=True, default='')
-    city = models.CharField('Cidade', max_length=100, blank=True, default='')
-    state = models.CharField('Estado', max_length=2, blank=True, default='')
-    zip_code = models.CharField('CEP', max_length=10, blank=True, default='')
-    notes = models.TextField('Observações', blank=True, default='')
-    is_active = models.BooleanField('Ativo', default=True)
-    assigned_producer = models.ForeignKey(
-        'agents.Producer',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='clients',
-        verbose_name='Produtor Responsável',
-    )
-    created_at = models.DateTimeField('Criado em', auto_now_add=True)
-    updated_at = models.DateTimeField('Atualizado em', auto_now=True)
+    ai_summary_updated_at = models.DateTimeField('resumo IA atualizado em', null=True, blank=True)
+
+    is_active = models.BooleanField('ativo', default=True)
 
     class Meta:
-        verbose_name = 'Cliente'
-        verbose_name_plural = 'Clientes'
-        ordering = ['name']
+        ordering = ('name',)
+        verbose_name = 'cliente'
+        verbose_name_plural = 'clientes'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['brokerage', 'document'],
+                name='unique_client_document_per_brokerage',
+            ),
+        ]
 
     def __str__(self):
         return self.name

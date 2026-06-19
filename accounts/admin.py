@@ -1,36 +1,28 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from accounts.models import User, UserBrokerage
-
-
-class UserBrokerageInline(admin.TabularInline):
-    model = UserBrokerage
-    extra = 1
+from .models import User
 
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
-    list_display = ['email', 'first_name', 'last_name', 'role', 'is_active', 'is_staff']
-    list_filter = ['role', 'is_active', 'is_staff']
-    search_fields = ['email', 'first_name', 'last_name']
-    ordering = ['email']
-    inlines = [UserBrokerageInline]
+    """Admin do User customizado (sem username, login por e-mail)."""
+
+    ordering = ('email',)
+    list_display = ('email', 'first_name', 'last_name', 'role', 'brokerage', 'is_staff', 'is_active')
+    list_filter = ('role', 'is_active', 'is_staff', 'brokerage')
+    search_fields = ('email', 'first_name', 'last_name')
 
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        ('Informações Pessoais', {'fields': ('first_name', 'last_name', 'phone', 'cpf', 'avatar')}),
-        ('Permissões', {'fields': ('role', 'is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+        ('Informações pessoais', {'fields': ('first_name', 'last_name')}),
+        ('Corretora e Papel', {'fields': ('brokerage', 'role')}),
+        ('Permissões', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+        ('Datas importantes', {'fields': ('last_login', 'date_joined')}),
     )
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'first_name', 'last_name', 'role', 'password1', 'password2'),
+            'fields': ('email', 'password1', 'password2', 'role', 'brokerage'),
         }),
     )
-
-
-@admin.register(UserBrokerage)
-class UserBrokerageAdmin(admin.ModelAdmin):
-    list_display = ['user', 'brokerage', 'is_default', 'joined_at']
-    list_filter = ['is_default']

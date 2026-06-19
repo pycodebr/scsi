@@ -1,0 +1,13 @@
+{% extends 'base_app.html' %}
+
+{% block title %}Anexos — SCSI{% endblock %}
+{% block page_title %}Anexos{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="/">Início</a></li>
+    <li class="breadcrumb-item active">Anexos</li>
+{% endblock %}
+
+{% block content %}
+{% include 'documents/document_attachments.html' with content_type_id=content_type_id object_id=object_id documents=documents %}
+{% endblock %}

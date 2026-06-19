@@ -1,0 +1,129 @@
+{% load static %}
+{# Menu lateral (Design System: nxl-navigation). Placeholders; rotas reais nas sprints de cada feature. #}
+<style>
+.nxl-navigation .navbar-content {
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: calc(100vh - 80px);
+}
+.nxl-navigation .navbar-content::-webkit-scrollbar {
+    width: 4px;
+}
+.nxl-navigation .navbar-content::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.15);
+    border-radius: 4px;
+}
+</style>
+<nav class="nxl-navigation">
+    <div class="navbar-wrapper">
+        <div class="m-header">
+            <a href="/" class="b-brand">
+                <img src="{% static 'images/logo-full.png' %}" alt="SCSI" class="logo logo-lg">
+                <img src="{% static 'images/logo-abbr.png' %}" alt="SCSI" class="logo logo-sm">
+            </a>
+        </div>
+        <div class="navbar-content">
+            <ul class="nxl-navbar">
+                <li class="nxl-item nxl-caption">
+                    <label>Operação</label>
+                </li>
+                <li class="nxl-item">
+                    <a href="/dashboard/" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-airplay"></i></span>
+                        <span class="nxl-mtext">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nxl-item">
+                    <a href="{% url 'clients:client_list' %}" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-users"></i></span>
+                        <span class="nxl-mtext">Clientes</span>
+                    </a>
+                </li>
+                <li class="nxl-item">
+                    <a href="{% url 'insurance:proposal_list' %}" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-file-text"></i></span>
+                        <span class="nxl-mtext">Propostas</span>
+                    </a>
+                </li>
+                <li class="nxl-item">
+                    <a href="{% url 'insurance:policy_list' %}" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-shield"></i></span>
+                        <span class="nxl-mtext">Apólices</span>
+                    </a>
+                </li>
+                <li class="nxl-item">
+                    <a href="{% url 'insurance:endorsement_list' %}" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-edit"></i></span>
+                        <span class="nxl-mtext">Endossos</span>
+                    </a>
+                </li>
+                <li class="nxl-item">
+                    <a href="{% url 'insurance:renewal_list' %}" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-refresh-cw"></i></span>
+                        <span class="nxl-mtext">Renovações</span>
+                    </a>
+                </li>
+                <li class="nxl-item">
+                    <a href="{% url 'claims:claim_list' %}" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-alert-triangle"></i></span>
+                        <span class="nxl-mtext">Sinistros</span>
+                    </a>
+                </li>
+                <li class="nxl-item nxl-caption">
+                    <label>Parceiros</label>
+                </li>
+                <li class="nxl-item">
+                    <a href="{% url 'partners:agent_list' %}" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-briefcase"></i></span>
+                        <span class="nxl-mtext">Agentes</span>
+                    </a>
+                </li>
+                <li class="nxl-item">
+                    <a href="{% url 'partners:producer_list' %}" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-users"></i></span>
+                        <span class="nxl-mtext">Produtores</span>
+                    </a>
+                </li>
+                <li class="nxl-item nxl-caption">
+                    <label>Catálogos</label>
+                </li>
+                <li class="nxl-item">
+                    <a href="{% url 'insurers:insurer_list' %}" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-shield"></i></span>
+                        <span class="nxl-mtext">Seguradoras</span>
+                    </a>
+                </li>
+                <li class="nxl-item">
+                    <a href="{% url 'insurers:lob_list' %}" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-layers"></i></span>
+                        <span class="nxl-mtext">Ramos</span>
+                    </a>
+                </li>
+                <li class="nxl-item">
+                    <a href="{% url 'crm:deal_list' %}" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-trello"></i></span>
+                        <span class="nxl-mtext">CRM</span>
+                    </a>
+                </li>
+                <li class="nxl-item">
+                    <a href="{% url 'commissions:commission_list' %}" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-percent"></i></span>
+                        <span class="nxl-mtext">Comissões</span>
+                    </a>
+                </li>
+                <li class="nxl-item">
+                    <a href="{% url 'reports:report_list' %}" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-bar-chart-2"></i></span>
+                        <span class="nxl-mtext">Relatórios</span>
+                    </a>
+                </li>
+                <li class="nxl-item">
+                    <a href="{% url 'ai_agents:chat' %}" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-message-circle"></i></span>
+                        <span class="nxl-mtext">Chat IA</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

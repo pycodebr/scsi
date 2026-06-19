@@ -1,0 +1,58 @@
+{% extends 'base_app.html' %}
+{% load brl_tags %}
+
+{% block title %}Endosso {{ endorsement.endorsement_number }} — SCSI{% endblock %}
+{% block page_title %}Endosso {{ endorsement.endorsement_number }}{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="/">Início</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'insurance:endorsement_list' %}">Endossos</a></li>
+    <li class="breadcrumb-item active">{{ endorsement.endorsement_number }}</li>
+{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'insurance:endorsement_update' endorsement.pk %}" class="btn btn-outline-primary btn-sm">Editar</a>
+{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h5 class="card-title mb-3">Dados do Endosso</h5>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <small class="text-muted d-block">Nº Endosso</small>
+                        <strong>{{ endorsement.endorsement_number }}</strong>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <small class="text-muted d-block">Apólice</small>
+                        <a href="{{ endorsement.policy.get_absolute_url }}">{{ endorsement.policy.policy_number }}</a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <small class="text-muted d-block">Tipo</small>
+                        {{ endorsement.get_type_display }}
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <small class="text-muted d-block">Variação de Prêmio</small>
+                        {% if endorsement.premium_change >= 0 %}+{% endif %}{{ endorsement.premium_change|brl }}
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <small class="text-muted d-block">Data de Vigência</small>
+                        {{ endorsement.effective_date|date:"d/m/Y" }}
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <small class="text-muted d-block">Status</small>
+                        <span class="badge {{ endorsement.status|slugify }}">{{ endorsement.get_status_display }}</span>
+                    </div>
+                </div>
+                {% if endorsement.description %}
+                <hr>
+                <h6>Descrição</h6>
+                <p>{{ endorsement.description }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

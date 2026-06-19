@@ -1,0 +1,53 @@
+{% load static %}
+{# Partial reutilizavel — lista e upload de anexos para qualquer entidade. #}
+
+<div id="document-attachments" data-content-type-id="{{ content_type_id }}" data-object-id="{{ object_id }}">
+    <h6 class="mt-4 mb-2">Anexos</h6>
+
+    {% if documents %}
+    <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Arquivo</th>
+                    <th>Tamanho</th>
+                    <th>Envio</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for doc in documents %}
+                <tr>
+                    <td>
+                        <a href="{% url 'documents:download' doc.pk %}">{{ doc.original_filename }}</a>
+                    </td>
+                    <td class="text-muted small">{{ doc.size|filesizeformat }}</td>
+                    <td class="text-muted small">{{ doc.created_at|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        {% if perms.documents.delete_document %}
+                        <button type="button" class="btn btn-outline-danger btn-sm btn-delete-attachment" data-doc-id="{{ doc.pk }}">
+                            <i class="feather-trash-2"></i>
+                        </button>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-muted small">Nenhum anexo.</p>
+    {% endif %}
+
+    <form id="document-upload-form" method="post" enctype="multipart/form-data"
+          action="{% url 'documents:upload' %}">
+        {% csrf_token %}
+        <input type="hidden" name="content_type_id" value="{{ content_type_id }}">
+        <input type="hidden" name="object_id" value="{{ object_id }}">
+        <div class="input-group">
+            <input type="file" name="file" class="form-control form-control-sm" id="document-file-input" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx,.txt,.md,.mp4,.mov,.avi">
+            <button type="submit" class="btn btn-primary btn-sm">Enviar</button>
+        </div>
+        <small class="text-muted">PDF, imagens, Word, Excel, Markdown, vídeos (MP4/MOV/AVI). Máx. 10 MB.</small>
+    </form>
+</div>

@@ -1,0 +1,166 @@
+{% extends 'base_app.html' %}
+{% load brl_tags %}
+
+{% block title %}{{ proposal.number }} — Propostas — SCSI{% endblock %}
+{% block page_title %}Proposta {{ proposal.number }}{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="/">Início</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'insurance:proposal_list' %}">Propostas</a></li>
+    <li class="breadcrumb-item active">{{ proposal.number }}</li>
+{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'insurance:proposal_update' proposal.pk %}" class="btn btn-outline-primary btn-sm">Editar</a>
+{% if can_generate_policy %}
+<button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#generatePolicyModal">Gerar apólice</button>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 col-lg-8">
+        <ul class="nav nav-tabs mb-3" id="proposalTab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link {% if active_tab == 'info' or not active_tab %}active{% endif %}"
+                   href="?tab=info">Informações</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if active_tab == 'items' %}active{% endif %}"
+                   href="?tab=items">Itens cobertos</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if active_tab == 'attachments' %}active{% endif %}"
+                   href="?tab=attachments">Anexos</a>
+            </li>
+        </ul>
+
+        {% if active_tab == 'info' or not active_tab %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="border-bottom pb-2 mb-3">Dados da proposta</h6>
+                        <table class="table table-sm table-borderless">
+                            <tr><th class="text-muted" style="width:40%">Número</th><td>{{ proposal.number }}</td></tr>
+                            <tr><th class="text-muted">Status</th><td><span class="badge bg-{% if proposal.status == 'draft' %}secondary{% elif proposal.status == 'sent' %}info{% elif proposal.status == 'under_analysis' %}warning{% elif proposal.status == 'approved' %}success{% elif proposal.status == 'rejected' %}danger{% elif proposal.status == 'converted' %}primary{% else %}secondary{% endif %}">{{ proposal.get_status_display }}</span></td></tr>
+                            <tr><th class="text-muted">Cliente</th><td>{{ proposal.client.name }}</td></tr>
+                            <tr><th class="text-muted">Seguradora</th><td>{{ proposal.insurer.name }}</td></tr>
+                            <tr><th class="text-muted">Ramo</th><td>{{ proposal.line_of_business.name }}</td></tr>
+                            <tr><th class="text-muted">Prêmio líquido</th><td>{{ proposal.net_premium|brl }}</td></tr>
+                            <tr><th class="text-muted">Prêmio total</th><td>{{ proposal.total_premium|brl }}</td></tr>
+                            <tr><th class="text-muted">IOF</th><td>{{ proposal.iof|brl }}</td></tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="border-bottom pb-2 mb-3">Vigência e pagamento</h6>
+                        <table class="table table-sm table-borderless">
+                            <tr><th class="text-muted" style="width:40%">Início proposto</th><td>{{ proposal.proposed_start_date|default:"—" }}</td></tr>
+                            <tr><th class="text-muted">Fim proposto</th><td>{{ proposal.proposed_end_date|default:"—" }}</td></tr>
+                            <tr><th class="text-muted">Condições</th><td>{{ proposal.payment_terms|default:"—" }}</td></tr>
+                        </table>
+
+                        {% if proposal.notes %}
+                        <h6 class="border-bottom pb-2 mb-3 mt-4">Observações</h6>
+                        <p>{{ proposal.notes }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% include "partials/_ai_summary.html" with object=proposal entity_type='proposal' %}
+            </div>
+        </div>
+
+        {% elif active_tab == 'items' %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                {% if proposal.items.all %}
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Tipo</th>
+                                <th>Descrição</th>
+                                <th>Identificador</th>
+                                <th>Importância segurada</th>
+                                <th>Atributos</th>
+                                <th>Coberturas</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in proposal.items.all %}
+                            <tr>
+                                <td><span class="badge bg-secondary">{{ item.get_item_type_display }}</span></td>
+                                <td>{{ item.description }}</td>
+                                <td>{{ item.identifier|default:"—" }}</td>
+                                <td>{{ item.insured_amount|brl }}</td>
+                                <td>
+                                    {% if item.attributes %}
+                                    <small class="text-muted">{% for k, v in item.attributes.items %}{{ k }}: {{ v }}{% if not forloop.last %}, {% endif %}{% endfor %}</small>
+                                    {% else %}—{% endif %}
+                                </td>
+                                <td>
+                                    {% if item.coverages %}
+                                    <small class="text-muted">{{ item.coverages|join:", " }}</small>
+                                    {% else %}—{% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">Nenhum item coberto cadastrado.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        {% elif active_tab == 'attachments' %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                {% include "documents/document_attachments.html" with content_type_id=content_type_id object_id=proposal.pk documents=documents %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-12 col-lg-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h6 class="border-bottom pb-2 mb-3">Resumo</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><i class="feather-file-text me-1"></i> Itens cobertos: {{ proposal.items.count }}</li>
+                    <li class="mb-2"><i class="feather-paperclip me-1"></i> Anexos: {{ documents|length }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if can_generate_policy %}
+<div class="modal fade" id="generatePolicyModal" tabindex="-1" aria-labelledby="generatePolicyLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'insurance:proposal_generate_policy' proposal.pk %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="generatePolicyLabel">Gerar Apólice</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Isso criará uma apólice copiando os dados desta proposta e marcará a proposta como <strong>Convertida</strong>.</p>
+                    <div class="mb-3">
+                        <label for="id_policy_number" class="form-label">Número da apólice *</label>
+                        <input type="text" name="policy_number" id="id_policy_number" class="form-control" placeholder="Ex: APOL-2024-001" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Gerar apólice</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

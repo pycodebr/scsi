@@ -1,0 +1,139 @@
+{# Topbar — Design System nxl-header com perfil dropdown e notificações #}
+<style>
+.nxl-h-item.topbar-dropdown { position: relative !important; }
+.nxl-h-item.topbar-dropdown .dropdown-menu {
+    display: none !important;
+    position: absolute !important;
+    left: auto !important;
+    right: 0 !important;
+    top: 100% !important;
+    width: auto !important;
+    z-index: 9999 !important;
+}
+.nxl-h-item.topbar-dropdown.show .dropdown-menu {
+    display: block !important;
+}
+</style>
+<header class="nxl-header">
+    <div class="header-wrapper">
+        <div class="header-left d-flex align-items-center gap-4">
+            <a href="javascript:void(0);" class="nxl-head-mobile-toggler" id="mobile-collapse">
+                <div class="hamburger hamburger--arrowturn">
+                    <div class="hamburger-box"><div class="hamburger-inner"></div></div>
+                </div>
+            </a>
+            <div class="nxl-navigation-toggle">
+                <a href="javascript:void(0);" id="menu-mini-button">
+                    <i class="feather-align-left"></i>
+                </a>
+            </div>
+        </div>
+        <div class="header-right ms-auto">
+            <div class="d-flex align-items-center">
+                {# Sino de notificações #}
+                <div class="nxl-h-item topbar-dropdown" id="notif-dropdown-wrapper">
+                    <a href="#" class="nxl-head-link me-0 position-relative" id="notification-bell">
+                        <i class="feather-bell"></i>
+                        <span class="badge bg-danger nxl-h-badge" id="notification-badge" hidden>0</span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end p-0 shadow" id="notification-dropdown" style="width: 320px; max-height: 400px; overflow-y: auto;">
+                        <div class="p-3 border-bottom"><strong>Notificações</strong></div>
+                        <div id="notification-list" class="p-0"></div>
+                    </div>
+                </div>
+
+                {# Perfil do usuário com dropdown #}
+                <div class="nxl-h-item topbar-dropdown" id="profile-dropdown-wrapper">
+                    <a href="#" class="nxl-head-link me-0 d-flex align-items-center gap-2" role="button" id="profile-dropdown-toggle" aria-expanded="false">
+                        <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary text-white" style="width:34px;height:34px;font-size:0.8rem;font-weight:600;">
+                            {{ user.first_name|default:user.email|slice:":2"|upper }}
+                        </span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                        <li class="px-3 py-2">
+                            <div class="fw-semibold">{{ user.get_full_name|default:user.email }}</div>
+                            <small class="text-muted">{{ user.email }}</small>
+                            {% if user.brokerage %}
+                            <div><span class="badge bg-primary bg-opacity-10 text-primary">{{ user.get_role_display }}</span> <small class="text-muted">em {{ user.brokerage.trade_name }}</small></div>
+                            {% endif %}
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item d-flex align-items-center gap-2 py-2" href="{% url 'accounts:profile' %}"><i class="feather-user" style="font-size:16px;"></i> Meu perfil</a></li>
+                        <li><a class="dropdown-item d-flex align-items-center gap-2 py-2" href="{% url 'accounts:password_reset' %}"><i class="feather-lock" style="font-size:16px;"></i> Alterar senha</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><form action="{% url 'accounts:logout' %}" method="post" class="m-0">{% csrf_token %}<button type="submit" class="dropdown-item d-flex align-items-center gap-2 py-2 text-danger w-100 border-0 bg-transparent"><i class="feather-log-out" style="font-size:16px;"></i> Sair</button></form></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<script>
+(function() {
+    {# ---- Notification bell ---- #}
+    var bell = document.getElementById('notification-bell');
+    var badge = document.getElementById('notification-badge');
+    var notifWrapper = document.getElementById('notif-dropdown-wrapper');
+    var nd = document.getElementById('notification-dropdown');
+    var list = document.getElementById('notification-list');
+
+    function updateBadge() {
+        fetch('/notifications/unread/').then(function(r) { return r.json(); }).then(function(d) {
+            if (d.count > 0) {
+                badge.textContent = d.count > 99 ? '99+' : d.count;
+                badge.hidden = false;
+            } else {
+                badge.hidden = true;
+            }
+        }).catch(function() {});
+    }
+
+    bell.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var isOpen = notifWrapper.classList.contains('show');
+        profileWrapper.classList.remove('show');
+        notifWrapper.classList.toggle('show', !isOpen);
+        if (!isOpen) {
+            fetch('/notifications/').then(function(r) { return r.json(); }).then(function(data) {
+                if (!data.length) {
+                    list.innerHTML = '<div class="p-3 text-center text-muted">Sem notificações</div>';
+                    return;
+                }
+                list.innerHTML = data.map(function(n) {
+                    return '<a href="' + (n.url || '#') + '" class="dropdown-item py-2 px-3 border-bottom' + (n.is_read ? '' : ' fw-bold') + '" data-id="' + n.id + '">' +
+                        '<div>' + n.title + '</div>' +
+                        '<small class="text-muted">' + new Date(n.created_at).toLocaleString('pt-BR') + '</small></a>';
+                }).join('');
+                list.querySelectorAll('[data-id]').forEach(function(el) {
+                    el.addEventListener('click', function() {
+                        var tk = document.cookie.match(/csrftoken=([^;]+)/);
+                        fetch('/notifications/' + el.dataset.id + '/read/', {method: 'POST', headers: {'X-CSRFToken': tk ? tk[1] : ''}});
+                    });
+                });
+            }).catch(function() { list.innerHTML = '<div class="p-3 text-center text-muted">Erro ao carregar</div>'; });
+        }
+    });
+
+    {# ---- Profile dropdown ---- #}
+    var profileWrapper = document.getElementById('profile-dropdown-wrapper');
+    var profileToggle = document.getElementById('profile-dropdown-toggle');
+
+    profileToggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        notifWrapper.classList.remove('show');
+        profileWrapper.classList.toggle('show');
+    });
+
+    {# ---- Close on outside click ---- #}
+    document.addEventListener('click', function(e) {
+        if (!notifWrapper.contains(e.target)) notifWrapper.classList.remove('show');
+        if (!profileWrapper.contains(e.target)) profileWrapper.classList.remove('show');
+    });
+
+    updateBadge();
+    setInterval(updateBadge, 30000);
+})();
+</script>

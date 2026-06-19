@@ -1,0 +1,72 @@
+{% extends 'base_app.html' %}
+{% load brl_tags %}
+
+{% block title %}Sinistro {{ claim.claim_number }} — SCSI{% endblock %}
+{% block page_title %}Sinistro {{ claim.claim_number }}{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="/">Início</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'claims:claim_list' %}">Sinistros</a></li>
+    <li class="breadcrumb-item active">{{ claim.claim_number }}</li>
+{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'claims:claim_update' claim.pk %}" class="btn btn-outline-primary btn-sm">Editar</a>
+{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+                <h5 class="card-title mb-3">Dados do Sinistro</h5>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <small class="text-muted d-block">Nº Sinistro</small>
+                        <strong>{{ claim.claim_number }}</strong>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <small class="text-muted d-block">Apólice</small>
+                        <a href="{{ claim.policy.get_absolute_url }}">{{ claim.policy.policy_number }}</a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <small class="text-muted d-block">Item Coberto</small>
+                        {{ claim.covered_item.description }}
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <small class="text-muted d-block">Data Ocorrência</small>
+                        {{ claim.occurrence_date|date:"d/m/Y" }}
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <small class="text-muted d-block">Data Aviso</small>
+                        {{ claim.notice_date|date:"d/m/Y" }}
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <small class="text-muted d-block">Valor Reclamado</small>
+                        {{ claim.claimed_amount|brl }}
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <small class="text-muted d-block">Valor Aprovado</small>
+                        {{ claim.approved_amount|brl }}
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <small class="text-muted d-block">Status</small>
+                        <span class="badge bg-{% if claim.status == 'opened' %}danger{% elif claim.status == 'under_analysis' %}warning{% elif claim.status == 'approved' %}success{% elif claim.status == 'paid' %}info{% elif claim.status == 'closed' %}secondary{% else %}dark{% endif %}">{{ claim.get_status_display }}</span>
+                    </div>
+                </div>
+                {% if claim.description %}
+                <hr>
+                <h6>Descrição</h6>
+                <p>{{ claim.description }}</p>
+                {% endif %}
+
+                {% include "partials/_ai_summary.html" with object=claim entity_type='claim' %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        {% include "documents/document_attachments.html" with content_type_id=content_type_id object_id=claim.pk documents=documents %}
+    </div>
+</div>
+{% endblock %}

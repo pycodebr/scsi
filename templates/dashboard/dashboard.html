@@ -1,0 +1,551 @@
+{% extends 'base_app.html' %}
+{% load brl_tags %}
+
+{% block title %}Dashboard — SCSI{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">Dashboard</li>
+{% endblock %}
+
+{% block page_actions %}
+<form method="get" class="d-flex gap-2 align-items-center">
+    <select name="period" class="form-select form-select-sm" style="width:auto;" onchange="this.form.submit()">
+        <option value="7" {% if request.GET.period == '7' %}selected{% endif %}>7 dias</option>
+        <option value="30" {% if not request.GET.period or request.GET.period == '30' %}selected{% endif %}>30 dias</option>
+        <option value="90" {% if request.GET.period == '90' %}selected{% endif %}>90 dias</option>
+        <option value="365" {% if request.GET.period == '365' %}selected{% endif %}>12 meses</option>
+    </select>
+</form>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.kpi-card{transition:transform .15s ease,box-shadow .15s ease}.kpi-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.kpi-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.kpi-value{font-size:1.5rem;font-weight:700;line-height:1.2}
+.kpi-label{font-size:.75rem;color:#64748b;margin-top:2px}
+.kpi-sub{font-size:.75rem;color:#64748b;border-top:1px solid #f1f5f9;padding-top:8px;margin-top:10px}
+.shortcut-card{transition:all .15s ease;border:1px solid #e5e7eb;cursor:pointer;text-decoration:none!important}
+.shortcut-card:hover{border-color:#3454d1;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.shortcut-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.chart-container{position:relative;width:100%}.chart-sm{height:220px}.chart-md{height:280px}
+.section-title{font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#64748b;margin-bottom:12px}
+</style>
+{% endblock %}
+
+{% block content %}
+{# ── KPI Cards ── #}
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-2">
+        <div class="card border-0 shadow-sm kpi-card">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <div class="kpi-icon bg-soft-primary text-primary"><i class="feather-users"></i></div>
+                    <div>
+                        <div class="kpi-value text-dark">{{ total_clients }}</div>
+                        <div class="kpi-label">Clientes ativos</div>
+                    </div>
+                </div>
+                <div class="kpi-sub">
+                    <span class="text-dark fw-semibold">+{{ new_clients_period }}</span> novos no período
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-2">
+        <div class="card border-0 shadow-sm kpi-card">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <div class="kpi-icon bg-soft-success text-success"><i class="feather-file-text"></i></div>
+                    <div>
+                        <div class="kpi-value text-dark">{{ active_policies }}</div>
+                        <div class="kpi-label">Apólices ativas</div>
+                    </div>
+                </div>
+                <div class="kpi-sub">
+                    <span class="text-dark fw-semibold">{{ total_premium|brl }}</span> em carteira
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-2">
+        <div class="card border-0 shadow-sm kpi-card">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <div class="kpi-icon bg-soft-info text-info"><i class="feather-file-plus"></i></div>
+                    <div>
+                        <div class="kpi-value text-dark">{{ open_proposals }}</div>
+                        <div class="kpi-label">Propostas abertas</div>
+                    </div>
+                </div>
+                <div class="kpi-sub">
+                    <span class="text-dark fw-semibold">{{ open_proposals_value|brl }}</span> em prêmio estimado
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-2">
+        <div class="card border-0 shadow-sm kpi-card">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <div class="kpi-icon bg-soft-warning text-warning"><i class="feather-alert-triangle"></i></div>
+                    <div>
+                        <div class="kpi-value text-dark">{{ open_claims }}</div>
+                        <div class="kpi-label">Sinistros abertos</div>
+                    </div>
+                </div>
+                <div class="kpi-sub">
+                    <span class="text-dark fw-semibold">{{ open_claims_value|brl }}</span> reclamados
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-2">
+        <div class="card border-0 shadow-sm kpi-card">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <div class="kpi-icon bg-soft-danger text-danger"><i class="feather-clock"></i></div>
+                    <div>
+                        <div class="kpi-value text-dark">{{ renewals_due_30d }}</div>
+                        <div class="kpi-label">Renovações 30d</div>
+                    </div>
+                </div>
+                <div class="kpi-sub">
+                    <span class="text-dark fw-semibold">{{ renewals_premium_at_risk|brl }}</span> prêmio em risco
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-2">
+        <div class="card border-0 shadow-sm kpi-card">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <div class="kpi-icon bg-soft-secondary text-secondary"><i class="feather-dollar-sign"></i></div>
+                    <div>
+                        <div class="kpi-value text-dark" style="font-size:1.2rem">{{ total_commission_pending|brl }}</div>
+                        <div class="kpi-label">Comissão pendente</div>
+                    </div>
+                </div>
+                <div class="kpi-sub">
+                    <span class="text-dark fw-semibold">{{ commission_pending_count }}</span> comissões aguardando
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# ── Quick Shortcuts ── #}
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body py-3">
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{% url 'clients:client_create' %}" class="card shortcut-card mb-0 text-decoration-none" style="min-width:130px;flex:1 1 130px;">
+                        <div class="card-body d-flex align-items-center gap-2 p-2">
+                            <div class="shortcut-icon bg-soft-primary text-primary"><i class="feather-user-plus"></i></div>
+                            <span class="fw-semibold text-dark" style="font-size:.8rem;">Novo Cliente</span>
+                        </div>
+                    </a>
+                    <a href="{% url 'insurance:proposal_create' %}" class="card shortcut-card mb-0 text-decoration-none" style="min-width:130px;flex:1 1 130px;">
+                        <div class="card-body d-flex align-items-center gap-2 p-2">
+                            <div class="shortcut-icon bg-soft-info text-info"><i class="feather-file-plus"></i></div>
+                            <span class="fw-semibold text-dark" style="font-size:.8rem;">Nova Proposta</span>
+                        </div>
+                    </a>
+                    <a href="{% url 'insurance:policy_create' %}" class="card shortcut-card mb-0 text-decoration-none" style="min-width:130px;flex:1 1 130px;">
+                        <div class="card-body d-flex align-items-center gap-2 p-2">
+                            <div class="shortcut-icon bg-soft-success text-success"><i class="feather-shield"></i></div>
+                            <span class="fw-semibold text-dark" style="font-size:.8rem;">Nova Apólice</span>
+                        </div>
+                    </a>
+                    <a href="{% url 'crm:deal_create' %}" class="card shortcut-card mb-0 text-decoration-none" style="min-width:130px;flex:1 1 130px;">
+                        <div class="card-body d-flex align-items-center gap-2 p-2">
+                            <div class="shortcut-icon bg-soft-warning text-warning"><i class="feather-target"></i></div>
+                            <span class="fw-semibold text-dark" style="font-size:.8rem;">Nova Negociação</span>
+                        </div>
+                    </a>
+                    <a href="{% url 'claims:claim_create' %}" class="card shortcut-card mb-0 text-decoration-none" style="min-width:130px;flex:1 1 130px;">
+                        <div class="card-body d-flex align-items-center gap-2 p-2">
+                            <div class="shortcut-icon bg-soft-danger text-danger"><i class="feather-alert-circle"></i></div>
+                            <span class="fw-semibold text-dark" style="font-size:.8rem;">Novo Sinistro</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# ── CRM + Funil ── #}
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm kpi-card">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center gap-3 mb-1">
+                    <div class="kpi-icon bg-soft-primary text-primary"><i class="feather-trending-up"></i></div>
+                    <div>
+                        <div class="kpi-value text-dark">{{ active_deals }}</div>
+                        <div class="kpi-label">Negociações abertas</div>
+                    </div>
+                </div>
+                <div class="kpi-sub">Em andamento</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm kpi-card">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center gap-3 mb-1">
+                    <div class="kpi-icon bg-soft-success text-success"><i class="feather-check-circle"></i></div>
+                    <div>
+                        <div class="kpi-value text-success">{{ won_deals_count }}</div>
+                        <div class="kpi-label">Ganhas</div>
+                    </div>
+                </div>
+                <div class="kpi-sub"><span class="fw-semibold text-success">{{ won_deals_value|brl }}</span> convertido</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm kpi-card">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center gap-3 mb-1">
+                    <div class="kpi-icon bg-soft-danger text-danger"><i class="feather-x-circle"></i></div>
+                    <div>
+                        <div class="kpi-value text-danger">{{ lost_deals_count }}</div>
+                        <div class="kpi-label">Perdidas</div>
+                    </div>
+                </div>
+                <div class="kpi-sub"><span class="fw-semibold text-danger">{{ lost_deals_value|brl }}</span> perdido</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm kpi-card">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center gap-3 mb-1">
+                    <div class="kpi-icon bg-soft-warning text-warning"><i class="feather-percent"></i></div>
+                    <div>
+                        <div class="kpi-value text-dark">{{ conversion_rate }}%</div>
+                        <div class="kpi-label">Taxa de conversão</div>
+                    </div>
+                </div>
+                <div class="kpi-sub">Ganhas / total</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# ── Funnel + Production ── #}
+<div class="row g-3 mb-4">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent border-0 pb-0 pt-3 px-3">
+                <h6 class="mb-0 fw-semibold"><i class="feather-filter me-1"></i> Funil de Negociações</h6>
+            </div>
+            <div class="card-body pt-2">
+                <div id="funnelContainer" style="position:relative;"></div>
+                {% if not funnel_data %}
+                <p class="text-muted mb-0 text-center py-4">Nenhuma pipeline configurada.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent border-0 pb-0 pt-3 px-3">
+                <h6 class="mb-0 fw-semibold"><i class="feather-bar-chart-2 me-1"></i> Produção Mensal</h6>
+            </div>
+            <div class="card-body pt-2">
+                <div class="chart-container chart-md">
+                    <canvas id="chartProduction"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# ── Donut Charts ── #}
+<div class="row g-3 mb-4">
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent border-0 pb-0 pt-3 px-3">
+                <h6 class="mb-0 fw-semibold"><i class="feather-pie-chart me-1"></i> Apólices por Ramo</h6>
+            </div>
+            <div class="card-body pt-2">
+                <div class="chart-container chart-sm">
+                    <canvas id="chartByLob"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent border-0 pb-0 pt-3 px-3">
+                <h6 class="mb-0 fw-semibold"><i class="feather-award me-1"></i> Top Seguradoras</h6>
+            </div>
+            <div class="card-body pt-2">
+                <div class="chart-container chart-sm">
+                    <canvas id="chartInsurer"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent border-0 pb-0 pt-3 px-3">
+                <h6 class="mb-0 fw-semibold"><i class="feather-alert-triangle me-1"></i> Sinistros por Status</h6>
+            </div>
+            <div class="card-body pt-2">
+                <div class="chart-container chart-sm">
+                    <canvas id="chartClaims"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# ── Recent Tables + Insights ── #}
+<div class="row g-3 mb-4">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent border-0 pb-0 pt-3 px-3 d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-semibold"><i class="feather-file-text me-1"></i> Apólices Recentes</h6>
+                <a href="{% url 'insurance:policy_list' %}" class="btn btn-sm btn-outline-primary">Ver todas</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead><tr><th>Número</th><th>Cliente</th><th>Prêmio</th><th>Status</th></tr></thead>
+                        <tbody>
+                        {% for p in recent_policies %}
+                        <tr>
+                            <td><a href="{% url 'insurance:policy_detail' p.pk %}">{{ p.policy_number }}</a></td>
+                            <td>{{ p.client.name|default:"—" }}</td>
+                            <td>{{ p.total_premium|brl }}</td>
+                            <td><span class="badge bg-{% if p.status == 'active' %}success{% elif p.status == 'canceled' %}danger{% elif p.status == 'expired' %}warning{% else %}secondary{% endif %}">{{ p.get_status_display }}</span></td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center text-muted py-3">Nenhuma apólice.</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent border-0 pb-0 pt-3 px-3">
+                <h6 class="mb-0 fw-semibold"><i class="feather-clock me-1"></i> Próximas Renovações</h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead><tr><th>Apólice</th><th>Cliente</th><th>Vencimento</th><th>Status</th></tr></thead>
+                        <tbody>
+                        {% for r in upcoming_renewals %}
+                        <tr>
+                            <td><a href="{% url 'insurance:policy_detail' r.policy.pk %}">{{ r.policy.policy_number }}</a></td>
+                            <td>{{ r.policy.client.name|default:"—" }}</td>
+                            <td>{{ r.due_date|date:"d/m/Y" }}</td>
+                            <td><span class="badge bg-warning">Pendente</span></td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center text-muted py-3">Nenhuma renovação pendente.</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# ── Insights ── #}
+{% if renewals_due_30d > 0 or open_claims > 0 or total_commission_pending %}
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent border-0 pb-0 pt-3 px-3">
+                <h6 class="mb-0 fw-semibold"><i class="feather-lightbulb me-1"></i> Insights</h6>
+            </div>
+            <div class="card-body pt-2">
+                <div class="row g-3">
+                    {% if renewals_due_30d > 0 %}
+                    <div class="col-md-4 col-lg-3">
+                        <div class="d-flex align-items-start gap-2 p-3 rounded" style="background:#fffbeb;">
+                            <div class="kpi-icon bg-soft-warning text-warning" style="width:36px;height:36px;border-radius:8px;font-size:.9rem"><i class="feather-clock"></i></div>
+                            <div>
+                                <div class="fw-semibold small">{{ renewals_due_30d }} renovações</div>
+                                <small class="text-muted d-block">vencem em 30 dias</small>
+                                <small class="fw-semibold text-dark">{{ renewals_premium_at_risk|brl }} em risco</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if policies_expiring_90 > 0 %}
+                    <div class="col-md-4 col-lg-3">
+                        <div class="d-flex align-items-start gap-2 p-3 rounded" style="background:#eff6ff;">
+                            <div class="kpi-icon bg-soft-primary text-primary" style="width:36px;height:36px;border-radius:8px;font-size:.9rem"><i class="feather-calendar"></i></div>
+                            <div>
+                                <div class="fw-semibold small">{{ policies_expiring_90 }} apólices</div>
+                                <small class="text-muted d-block">expiram em 90 dias</small>
+                                <small class="fw-semibold text-dark">verifique renovações</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if open_claims > 0 %}
+                    <div class="col-md-4 col-lg-3">
+                        <div class="d-flex align-items-start gap-2 p-3 rounded" style="background:#fef2f2;">
+                            <div class="kpi-icon bg-soft-danger text-danger" style="width:36px;height:36px;border-radius:8px;font-size:.9rem"><i class="feather-alert-triangle"></i></div>
+                            <div>
+                                <div class="fw-semibold small">{{ claims_total_count }} sinistros</div>
+                                <small class="text-muted d-block">{{ claims_approval_rate }}% aprovação</small>
+                                <small class="fw-semibold text-dark">{{ claims_total_value|brl }} reclamados</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if total_commission_pending %}
+                    <div class="col-md-4 col-lg-3">
+                        <div class="d-flex align-items-start gap-2 p-3 rounded" style="background:#ecfdf5;">
+                            <div class="kpi-icon bg-soft-success text-success" style="width:36px;height:36px;border-radius:8px;font-size:.9rem"><i class="feather-dollar-sign"></i></div>
+                            <div>
+                                <div class="fw-semibold small">{{ total_commission_pending|brl }}</div>
+                                <small class="text-muted d-block">{{ commission_pending_count }} comissões pendentes</small>
+                                <small class="fw-semibold text-dark">aguardando recebimento</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if active_deals > 0 %}
+                    <div class="col-md-4 col-lg-3">
+                        <div class="d-flex align-items-start gap-2 p-3 rounded" style="background:#f0f0ff;">
+                            <div class="kpi-icon bg-soft-info text-info" style="width:36px;height:36px;border-radius:8px;font-size:.9rem"><i class="feather-trending-up"></i></div>
+                            <div>
+                                <div class="fw-semibold small">{{ conversion_rate }}% conversão</div>
+                                <small class="text-muted d-block">{{ active_deals }} negociações abertas</small>
+                                <small class="fw-semibold text-dark">{{ won_deals_value_period|brl }} ganhas no período</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if policies_count > 0 %}
+                    <div class="col-md-4 col-lg-3">
+                        <div class="d-flex align-items-start gap-2 p-3 rounded" style="background:#f0fdf4;">
+                            <div class="kpi-icon bg-soft-success text-success" style="width:36px;height:36px;border-radius:8px;font-size:.9rem"><i class="feather-bar-chart-2"></i></div>
+                            <div>
+                                <div class="fw-semibold small">Ticket médio</div>
+                                <small class="text-muted d-block">prêmio por apólice</small>
+                                <small class="fw-semibold text-dark">{{ avg_premium|brl }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var COLORS = ['#3454d1','#28a745','#ffc107','#dc3545','#17a2b8','#6f42c1','#fd7e14','#20c997'];
+    function formatCurrency(value) {
+        return 'R$ ' + Number(value).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+
+    var funnelContainer = document.getElementById('funnelContainer');
+    var funnelLabels = {{ funnel_labels|safe }};
+    var funnelValues = {{ funnel_values|safe }};
+    var funnelAmounts = {{ funnel_amounts|safe }};
+    var funnelColors = {{ funnel_colors|safe }};
+
+    if (funnelContainer && funnelLabels.length > 0) {
+        var n = funnelLabels.length;
+        var rowH = 40, gap = 4;
+        var totalH = n * rowH + (n - 1) * gap;
+        var svgW = funnelContainer.clientWidth || 460;
+        var usableW = svgW - 20;
+        var minPct = 0.30;
+        var widths = [];
+        for (var i = 0; i < n; i++) {
+            widths.push(n > 1 ? 1 - (1 - minPct) * (i / (n - 1)) : 1);
+        }
+        var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="' + totalH + '" viewBox="0 0 ' + svgW + ' ' + totalH + '" preserveAspectRatio="xMidYMid meet">';
+        for (var i = 0; i < n; i++) {
+            var y = i * (rowH + gap);
+            var w1 = usableW * widths[i];
+            var w2 = (i < n - 1) ? usableW * widths[i + 1] : w1 * 0.85;
+            var x1L = (svgW - w1) / 2, x1R = x1L + w1;
+            var x2L = (svgW - w2) / 2, x2R = x2L + w2;
+            var path = 'M' + x1L + ',' + y + ' L' + x1R + ',' + y + ' L' + x2R + ',' + (y + rowH) + ' L' + x2L + ',' + (y + rowH) + ' Z';
+            svg += '<path d="' + path + '" fill="' + funnelColors[i] + '" opacity="0.92" rx="3"/>';
+            var midLeftX = x1L + (x2L - x1L) / 2;
+            var midRightX = x1R + (x2R - x1R) / 2;
+            var textY = y + rowH / 2 + 5;
+            svg += '<text x="' + (midLeftX + 12) + '" y="' + textY + '" fill="#fff" font-size="12" font-weight="600">' + funnelLabels[i] + '</text>';
+            var metaText = funnelValues[i] + ' deal' + (funnelValues[i] !== 1 ? 's' : '') + '  ·  ' + formatCurrency(funnelAmounts[i]);
+            svg += '<text x="' + (midRightX - 12) + '" y="' + textY + '" fill="rgba(255,255,255,0.9)" font-size="10" text-anchor="end">' + metaText + '</text>';
+        }
+        svg += '</svg>';
+        funnelContainer.innerHTML = svg;
+    } else if (funnelContainer) {
+        funnelContainer.innerHTML = '<div class="text-center py-4 text-muted">Nenhum pipeline configurado.</div>';
+    }
+
+    var prodCtx = document.getElementById('chartProduction');
+    if (prodCtx) {
+        new Chart(prodCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ chart_months|safe }},
+                datasets: [
+                    { label: 'Prêmio (R$)', data: {{ chart_premiums|safe }}, backgroundColor: 'rgba(52,84,209,0.7)', borderRadius: 4 },
+                    { label: 'Comissão (R$)', data: {{ chart_commissions|safe }}, backgroundColor: 'rgba(40,167,69,0.7)', borderRadius: 4 }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { position: 'top', labels: { boxWidth: 12 } } },
+                scales: { y: { beginAtZero: true, ticks: { callback: function(v) { return formatCurrency(v); } } } }
+            }
+        });
+    }
+
+    var lobCtx = document.getElementById('chartByLob');
+    if (lobCtx) {
+        new Chart(lobCtx, {
+            type: 'doughnut',
+            data: { labels: {{ chart_lob_labels|safe }}, datasets: [{ data: {{ chart_lob_values|safe }}, backgroundColor: COLORS }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8, font: { size: 11 } } } } }
+        });
+    }
+
+    var insCtx = document.getElementById('chartInsurer');
+    if (insCtx) {
+        new Chart(insCtx, {
+            type: 'doughnut',
+            data: { labels: {{ chart_insurer_labels|safe }}, datasets: [{ data: {{ chart_insurer_values|safe }}, backgroundColor: COLORS }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8, font: { size: 11 } } } } }
+        });
+    }
+
+    var claimCtx = document.getElementById('chartClaims');
+    if (claimCtx) {
+        new Chart(claimCtx, {
+            type: 'doughnut',
+            data: { labels: {{ chart_claims_labels|safe }}, datasets: [{ data: {{ chart_claims_values|safe }}, backgroundColor: COLORS }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8, font: { size: 11 } } } } }
+        });
+    }
+});
+</script>
+{% endblock %}

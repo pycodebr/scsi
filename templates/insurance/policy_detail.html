@@ -1,0 +1,172 @@
+{% extends 'base_app.html' %}
+{% load brl_tags %}
+
+{% block title %}{{ policy.policy_number }} — Apólices — SCSI{% endblock %}
+{% block page_title %}Apólice {{ policy.policy_number }}{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="/">Início</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'insurance:policy_list' %}">Apólices</a></li>
+    <li class="breadcrumb-item active">{{ policy.policy_number }}</li>
+{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'insurance:policy_update' policy.pk %}" class="btn btn-outline-primary btn-sm">Editar</a>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 col-lg-8">
+        <ul class="nav nav-tabs mb-3">
+            <li class="nav-item">
+                <a class="nav-link {% if active_tab == 'info' or not active_tab %}active{% endif %}" href="?tab=info">Informações</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if active_tab == 'items' %}active{% endif %}" href="?tab=items">Itens cobertos</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if active_tab == 'attachments' %}active{% endif %}" href="?tab=attachments">Anexos</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if active_tab == 'endorsements' %}active{% endif %}" href="?tab=endorsements">Endossos</a>
+            </li>
+        </ul>
+
+        {% if active_tab == 'info' or not active_tab %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="border-bottom pb-2 mb-3">Dados da apólice</h6>
+                        <table class="table table-sm table-borderless">
+                            <tr><th class="text-muted" style="width:40%">Número</th><td>{{ policy.policy_number }}</td></tr>
+                            <tr><th class="text-muted">Status</th><td><span class="badge bg-{% if policy.status == 'active' %}success{% elif policy.status == 'canceled' %}danger{% elif policy.status == 'expired' %}warning{% elif policy.status == 'renewed' %}primary{% else %}secondary{% endif %}">{{ policy.get_status_display }}</span></td></tr>
+                            <tr><th class="text-muted">Cliente</th><td>{{ policy.client.name }}</td></tr>
+                            <tr><th class="text-muted">Seguradora</th><td>{{ policy.insurer.name }}</td></tr>
+                            <tr><th class="text-muted">Ramo</th><td>{{ policy.line_of_business.name }}</td></tr>
+                            {% if policy.proposal %}<tr><th class="text-muted">Proposta</th><td><a href="{% url 'insurance:proposal_detail' policy.proposal.pk %}">{{ policy.proposal.number }}</a></td></tr>{% endif %}
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="border-bottom pb-2 mb-3">Valores e vigência</h6>
+                        <table class="table table-sm table-borderless">
+                            <tr><th class="text-muted" style="width:40%">Prêmio líquido</th><td>{{ policy.net_premium|brl }}</td></tr>
+                            <tr><th class="text-muted">Prêmio total</th><td>{{ policy.total_premium|brl }}</td></tr>
+                            <tr><th class="text-muted">IOF</th><td>{{ policy.iof|brl }}</td></tr>
+                            <tr><th class="text-muted">Comissão</th><td>{{ policy.commission_rate }}%</td></tr>
+                            <tr><th class="text-muted">Início</th><td>{{ policy.start_date|default:"—" }}</td></tr>
+                            <tr><th class="text-muted">Fim</th><td>{{ policy.end_date|default:"—" }}</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                {% include "partials/_ai_summary.html" with object=policy entity_type='policy' %}
+            </div>
+        </div>
+
+        {% elif active_tab == 'items' %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                {% if policy.items.all %}
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Tipo</th>
+                                <th>Descrição</th>
+                                <th>Identificador</th>
+                                <th>Importância segurada</th>
+                                <th>Atributos</th>
+                                <th>Coberturas</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in policy.items.all %}
+                            <tr>
+                                <td><span class="badge bg-secondary">{{ item.get_item_type_display }}</span></td>
+                                <td>{{ item.description }}</td>
+                                <td>{{ item.identifier|default:"—" }}</td>
+                                <td>{{ item.insured_amount|brl }}</td>
+                                <td>
+                                    {% if item.attributes %}
+                                    <small class="text-muted">{% for k, v in item.attributes.items %}{{ k }}: {{ v }}{% if not forloop.last %}, {% endif %}{% endfor %}</small>
+                                    {% else %}—{% endif %}
+                                </td>
+                                <td>
+                                    {% if item.coverages %}
+                                    <small class="text-muted">{{ item.coverages|join:", " }}</small>
+                                    {% else %}—{% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">Nenhum item coberto.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        {% elif active_tab == 'attachments' %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                {% include "documents/document_attachments.html" with content_type_id=content_type_id object_id=policy.pk documents=documents %}
+            </div>
+        </div>
+
+        {% elif active_tab == 'endorsements' %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0">Endossos</h6>
+                    <a href="{% url 'insurance:endorsement_create' %}?policy_id={{ policy.pk }}" class="btn btn-sm btn-primary">
+                        <i class="bi bi-plus-lg"></i> Novo Endosso
+                    </a>
+                </div>
+                {% if endorsements %}
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Nº Endosso</th>
+                                <th>Tipo</th>
+                                <th>Variação Prêmio</th>
+                                <th>Vigência</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for end in endorsements %}
+                            <tr>
+                                <td><a href="{{ end.get_absolute_url }}">{{ end.endorsement_number }}</a></td>
+                                <td>{{ end.get_type_display }}</td>
+                                <td>{% if end.premium_change >= 0 %}+{% endif %}{{ end.premium_change|brl }}</td>
+                                <td>{{ end.effective_date|date:"d/m/Y" }}</td>
+                                <td><span class="badge {{ end.status|slugify }}">{{ end.get_status_display }}</span></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">Nenhum endosso registrado.</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-12 col-lg-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h6 class="border-bottom pb-2 mb-3">Resumo</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><i class="feather-shield me-1"></i> Itens cobertos: {{ policy.items.count }}</li>
+                    <li class="mb-2"><i class="feather-paperclip me-1"></i> Anexos: {{ documents|length }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

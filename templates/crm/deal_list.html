@@ -1,0 +1,74 @@
+{% extends 'base_app.html' %}
+{% load brl_tags %}
+
+{% block title %}Negociações — CRM{% endblock %}
+{% block page_title %}Negociações{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="/">Início</a></li>
+    <li class="breadcrumb-item active">Negociações</li>
+{% endblock %}
+
+{% block page_actions %}
+<div class="d-flex gap-2">
+    <a href="{% url 'crm:deal_create' %}" class="btn btn-primary"><i class="feather-plus me-1"></i>Nova negociação</a>
+    <a href="{% url 'crm:deal_kanban' %}" class="btn btn-outline-primary"><i class="feather-columns me-1"></i>Kanban</a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-control">
+                    <option value="">Todos</option>
+                    <option value="open">Aberto</option>
+                    <option value="won">Ganho</option>
+                    <option value="lost">Perdido</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-outline-primary w-100"><i class="bi bi-search"></i> Filtrar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if deals %}
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Etapa</th>
+                        <th>Cliente</th>
+                        <th>Valor Estimado</th>
+                        <th>Status</th>
+                        <th>Previsão</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for deal in deals %}
+                    <tr>
+                        <td><a href="{{ deal.get_absolute_url }}">{{ deal.title }}</a></td>
+                        <td><span class="badge" style="background-color: {{ deal.stage.color }}; color: #fff;">{{ deal.stage.name }}</span></td>
+                        <td>{{ deal.client.name|default:"—" }}</td>
+                        <td>{{ deal.estimated_value|brl }}</td>
+                        <td><span class="badge {{ deal.status|slugify }}">{{ deal.get_status_display }}</span></td>
+                        <td>{{ deal.expected_close_date|date:"d/m/Y"|default:"—" }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% include "partials/_pagination.html" %}
+{% else %}
+<div class="alert alert-info">Nenhuma negociação cadastrada.</div>
+{% endif %}
+{% endblock %}

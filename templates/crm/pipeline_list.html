@@ -1,0 +1,42 @@
+{% extends 'base_app.html' %}
+
+{% block title %}Pipelines — CRM{% endblock %}
+{% block page_title %}Pipelines{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="/">Início</a></li>
+    <li class="breadcrumb-item active">Pipelines</li>
+{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'crm:pipeline_create' %}" class="btn btn-primary btn-sm">Novo Pipeline</a>
+{% endblock %}
+
+{% block content %}
+{% if pipelines %}
+{% for pipeline in pipelines %}
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+        <h6 class="mb-0">{{ pipeline.name }}{% if pipeline.is_default %} <span class="badge bg-primary ms-2">Padrão</span>{% endif %}</h6>
+        <div>
+            <a href="{% url 'crm:pipeline_update' pipeline.pk %}" class="btn btn-sm btn-outline-secondary">Editar</a>
+            <a href="{% url 'crm:stage_create' %}?pipeline={{ pipeline.pk }}" class="btn btn-sm btn-outline-primary ms-1">+ Etapa</a>
+        </div>
+    </div>
+    <div class="card-body p-3">
+        <div class="d-flex flex-wrap gap-2">
+        {% for stage in pipeline.stages.all %}
+            <span class="badge" style="background-color: {{ stage.color }}; color: #fff; min-width: 80px;">
+                {{ stage.name }}
+                {% if stage.is_won %}(Ganho){% endif %}
+                {% if stage.is_lost %}(Perdido){% endif %}
+            </span>
+        {% endfor %}
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% else %}
+<div class="alert alert-info">Nenhum pipeline cadastrado.</div>
+{% endif %}
+{% endblock %}

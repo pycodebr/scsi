@@ -1,0 +1,62 @@
+{% extends 'base_app.html' %}
+{% load brl_tags %}
+
+{% block title %}Comissões — SCSI{% endblock %}
+{% block page_title %}Comissões{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="/">Início</a></li>
+    <li class="breadcrumb-item active">Comissões</li>
+{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Status</label>
+                {{ search_form.status }}
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-outline-primary w-100"><i class="bi bi-search"></i> Filtrar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if commissions %}
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Apólice</th>
+                        <th>Prêmio Base</th>
+                        <th>Taxa Seguradora</th>
+                        <th>Valor Corretora</th>
+                        <th>Referência</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for c in commissions %}
+                    <tr>
+                        <td><a href="{{ c.get_absolute_url }}">{{ c.policy.policy_number }}</a></td>
+                        <td>{{ c.base_premium|brl }}</td>
+                        <td>{{ c.insurer_rate }}%</td>
+                        <td>{{ c.insurer_amount|brl }}</td>
+                        <td>{{ c.reference_date|date:"d/m/Y"|default:"—" }}</td>
+                        <td><span class="badge bg-{% if c.status == 'pending' %}warning{% elif c.status == 'received' %}info{% elif c.status == 'paid' %}success{% else %}secondary{% endif %}">{{ c.get_status_display }}</span></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% include "partials/_pagination.html" %}
+{% else %}
+<div class="alert alert-info">Nenhuma comissão registrada.</div>
+{% endif %}
+{% endblock %}

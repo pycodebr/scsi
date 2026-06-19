@@ -1,0 +1,51 @@
+{% extends 'base_app.html' %}
+
+{% block title %}{{ form.instance.pk|yesno:"Editar Renovação|Nova Renovação" }} — SCSI{% endblock %}
+{% block page_title %}{{ form.instance.pk|yesno:"Editar Renovação|Nova Renovação" }}{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="/">Início</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'insurance:renewal_list' %}">Renovações</a></li>
+    <li class="breadcrumb-item active">{{ form.instance.pk|yesno:"Editar|Nova" }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        <form method="post">
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Apólice Original *</label>
+                    {{ form.policy }}
+                    {{ form.policy.errors }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Nova Apólice</label>
+                    {{ form.new_policy }}
+                    {{ form.new_policy.errors }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Status</label>
+                    {{ form.status }}
+                    {{ form.status.errors }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Data de Vencimento *</label>
+                    {{ form.due_date }}
+                    {{ form.due_date.errors }}
+                </div>
+            </div>
+            <div class="col-12 mt-3">
+                <label class="form-label">Observações</label>
+                {{ form.notes }}
+                {{ form.notes.errors }}
+            </div>
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{% url 'insurance:renewal_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary">Salvar</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

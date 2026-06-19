@@ -1,121 +1,91 @@
-{% extends 'base.html' %}
+{% extends 'base_app.html' %}
 
-{% block title %}{{ client.name }}{% endblock %}
-{% block nav_clients %}active{% endblock %}
-{% block page_title %}Detalhes do Cliente{% endblock %}
+{% block title %}{{ client.name }} — Clientes — SCSI{% endblock %}
+{% block page_title %}{{ client.name }}{% endblock %}
+
 {% block breadcrumb %}
-<li class="breadcrumb-item"><a href="{% url 'clients:client_list' %}">Clientes</a></li>
-<li class="breadcrumb-item">{{ client.name }}</li>
+    <li class="breadcrumb-item"><a href="/">Início</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'clients:client_list' %}">Clientes</a></li>
+    <li class="breadcrumb-item active">{{ client.name }}</li>
 {% endblock %}
 
 {% block page_actions %}
-<a href="{% url 'clients:client_update' client.pk %}" class="btn btn-primary">
-    <i class="feather-edit me-2"></i>
-    <span>Editar</span>
-</a>
-<a href="{% url 'clients:client_delete' client.pk %}" class="btn btn-danger">
-    <i class="feather-trash-2 me-2"></i>
-    <span>Excluir</span>
-</a>
+<a href="{% url 'clients:client_update' client.pk %}" class="btn btn-outline-primary btn-sm">Editar</a>
 {% endblock %}
 
 {% block content %}
 <div class="row">
-    <div class="col-12">
-        <div class="card stretch stretch-full">
-            <div class="card-header">
-                <h5 class="card-title">{{ client.name }}</h5>
-                <div class="card-header-action">
-                    {% if client.is_active %}
-                    <span class="badge bg-soft-success text-success">Ativo</span>
-                    {% else %}
-                    <span class="badge bg-soft-danger text-danger">Inativo</span>
-                    {% endif %}
-                </div>
-            </div>
-            <div class="card-body">
+    <div class="col-12 col-lg-8">
+        <ul class="nav nav-tabs mb-3" id="clientTab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link {% if active_tab == 'info' %}active{% endif %}"
+                   href="?tab=info">Informações</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if active_tab == 'attachments' %}active{% endif %}"
+                   href="?tab=attachments">Anexos</a>
+            </li>
+        </ul>
+
+        {% if active_tab == 'info' or not active_tab %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
                 <div class="row">
-                    <!-- Column 1 -->
-                    <div class="col-lg-6">
-                        <table class="table table-borderless mb-0">
-                            <tbody>
-                                <tr>
-                                    <td class="fw-semibold text-muted" style="width:180px;">Tipo</td>
-                                    <td>{{ client.get_client_type_display }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-semibold text-muted">Nome / Razão Social</td>
-                                    <td>{{ client.name }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-semibold text-muted">CPF / CNPJ</td>
-                                    <td>{{ client.cpf_cnpj }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-semibold text-muted">Email</td>
-                                    <td>{{ client.email|default:'-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-semibold text-muted">Telefone</td>
-                                    <td>{{ client.phone|default:'-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-semibold text-muted">Telefone Secundário</td>
-                                    <td>{{ client.secondary_phone|default:'-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-semibold text-muted">Data de Nascimento</td>
-                                    <td>{{ client.birth_date|date:'d/m/Y'|default:'-' }}</td>
-                                </tr>
-                            </tbody>
+                    <div class="col-md-6">
+                        <h6 class="border-bottom pb-2 mb-3">Dados principais</h6>
+                        <table class="table table-sm table-borderless">
+                            <tr><th class="text-muted" style="width:35%">Tipo</th><td>{{ client.get_person_type_display }}</td></tr>
+                            <tr><th class="text-muted">Nome / Razão social</th><td>{{ client.name }}</td></tr>
+                            {% if client.trade_name %}<tr><th class="text-muted">Nome fantasia</th><td>{{ client.trade_name }}</td></tr>{% endif %}
+                            <tr><th class="text-muted">Documento</th><td>{{ client.document }}</td></tr>
+                            <tr><th class="text-muted">E-mail</th><td>{{ client.email|default:"—" }}</td></tr>
+                            <tr><th class="text-muted">Telefone</th><td>{{ client.phone|default:"—" }}</td></tr>
+                            {% if client.birth_date %}<tr><th class="text-muted">Nascimento</th><td>{{ client.birth_date|date:"d/m/Y" }}</td></tr>{% endif %}
+                            <tr><th class="text-muted">Status</th><td>{% if client.is_active %}<span class="badge bg-success">Ativo</span>{% else %}<span class="badge bg-danger">Inativo</span>{% endif %}</td></tr>
                         </table>
                     </div>
-                    <!-- Column 2 -->
-                    <div class="col-lg-6">
-                        <table class="table table-borderless mb-0">
-                            <tbody>
-                                <tr>
-                                    <td class="fw-semibold text-muted" style="width:180px;">Endereço</td>
-                                    <td>{{ client.address|default:'-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-semibold text-muted">Cidade</td>
-                                    <td>{{ client.city|default:'-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-semibold text-muted">Estado</td>
-                                    <td>{{ client.state|default:'-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-semibold text-muted">CEP</td>
-                                    <td>{{ client.zip_code|default:'-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-semibold text-muted">Produtor Responsável</td>
-                                    <td>{{ client.assigned_producer.name|default:'-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-semibold text-muted">Criado em</td>
-                                    <td>{{ client.created_at|date:'d/m/Y H:i' }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-semibold text-muted">Atualizado em</td>
-                                    <td>{{ client.updated_at|date:'d/m/Y H:i' }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="col-md-6">
+                        <h6 class="border-bottom pb-2 mb-3">Endereço</h6>
+                        {% if client.address_street %}
+                        <address class="mb-0">
+                            {{ client.address_street }}{% if client.address_number %}, {{ client.address_number }}{% endif %}{% if client.address_complement %} — {{ client.address_complement }}{% endif %}<br>
+                            {% if client.address_neighborhood %}{{ client.address_neighborhood }}<br>{% endif %}
+                            {{ client.address_city|default:"" }}{% if client.address_state %} — {{ client.address_state }}{% endif %}{% if client.address_zip %}<br>{{ client.address_zip }}{% endif %}
+                        </address>
+                        {% else %}
+                        <p class="text-muted">Endereço não informado.</p>
+                        {% endif %}
+
+                        {% if client.notes %}
+                        <h6 class="border-bottom pb-2 mb-3 mt-4">Observações</h6>
+                        <p>{{ client.notes }}</p>
+                        {% endif %}
                     </div>
                 </div>
 
-                {% if client.notes %}
-                <hr>
-                <div class="row">
-                    <div class="col-12">
-                        <h6 class="fw-semibold text-muted mb-2">Observações</h6>
-                        <p class="mb-0">{{ client.notes|linebreaksbr }}</p>
-                    </div>
-                </div>
-                {% endif %}
+                {% include "partials/_ai_summary.html" with object=client entity_type='client' %}
+            </div>
+        </div>
+
+        {% elif active_tab == 'attachments' %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                {% include "documents/document_attachments.html" with content_type_id=content_type_id object_id=client.pk documents=documents %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-12 col-lg-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h6 class="border-bottom pb-2 mb-3">Resumo</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><i class="feather-file-text me-1"></i> Propostas: <span class="text-muted">(em breve)</span></li>
+                    <li class="mb-2"><i class="feather-shield me-1"></i> Apólices: <span class="text-muted">(em breve)</span></li>
+                    <li class="mb-2"><i class="feather-alert-triangle me-1"></i> Sinistros: <span class="text-muted">(em breve)</span></li>
+                    <li class="mb-2"><i class="feather-paperclip me-1"></i> Anexos: {{ documents|length }}</li>
+                </ul>
             </div>
         </div>
     </div>

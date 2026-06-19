@@ -1,0 +1,61 @@
+{% extends 'base_app.html' %}
+
+{% block title %}Renovações — SCSI{% endblock %}
+{% block page_title %}Renovações{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="/">Início</a></li>
+    <li class="breadcrumb-item active">Renovações</li>
+{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'insurance:renewal_create' %}" class="btn btn-primary btn-sm">Nova renovação</a>
+{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Status</label>
+                {{ search_form.status }}
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-outline-primary w-100"><i class="bi bi-search"></i> Filtrar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if renewals %}
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Apólice</th>
+                        <th>Nova Apólice</th>
+                        <th>Vencimento</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for r in renewals %}
+                    <tr>
+                        <td><a href="{{ r.policy.get_absolute_url }}">{{ r.policy.policy_number }}</a></td>
+                        <td>{% if r.new_policy %}<a href="{{ r.new_policy.get_absolute_url }}">{{ r.new_policy.policy_number }}</a>{% else %}—{% endif %}</td>
+                        <td>{{ r.due_date|date:"d/m/Y" }}</td>
+                        <td><span class="badge {{ r.status|slugify }}">{{ r.get_status_display }}</span></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% include "partials/_pagination.html" %}
+{% else %}
+<div class="alert alert-info">Nenhuma renovação cadastrada.</div>
+{% endif %}
+{% endblock %}
